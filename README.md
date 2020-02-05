@@ -1,2 +1,2 @@
-# Pascall++ Compiler 
-Professional and efficient Pascall ++ Compiler 
+# Pascal++ Compiler 
+Professional and efficient Pascal++ Compiler 
