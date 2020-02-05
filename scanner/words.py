@@ -1,77 +1,57 @@
 key_token_words = [
     "array",
-    "assign",
-    "boolean",
     "break",
     "begin",
-    "char",
     "continue",
     "do",
     "else",
     "end",
-    "false",
     "function",
     "procedure",
     "if",
-    "integer",
     "of",
-    "real",
     "return",
-    "string",
-    "true",
     "while",
     "var",
-    "and",
-    "or"
-]
-
-all_token_words = {
-    "array",
-    "assign",
-    "boolean",
-    "break",
-    "begin",
-    "char",
-    "continue",
-    "do",
-    "else",
-    "end",
-    "false",
-    "function",
-    "procedure",
-    "if",
-    "integer",
-    "of",
-    "real",
-    "return",
-    "string",
-    "true",
-    "while",
-    "var",
-
     "and",
     "or",
+    "then",
+    "write",
+    "read"
+]
 
-    "+",
-    "-",
-    "*",
-    "/",
-    "&",
-    "^",
-    "|",
-    "%",
+single_signs = [
+    '+',
+    '-',
+    '*',
+    '/',
+    '&',
+    '^',
+    '|',
+    '%',
     '~',
+    ')',
+    '(',
+    ':',
+    ';',
+    '='
+]
 
-    "<",
-    ">",
-    "<=",
-    ">=",
-    "=",
-    "<>",
+boolean_consts = [
+    'true',
+    'false'
+]
 
-    ")",
-    "(",
-    ":",
-    ";",
+white_spaces = [
+    '\n',
+    ' '
+]
 
-}
+types = [
+    'boolean',
+    'char',
+    'integer',
+    'long',
+    'real',
+    'string',
+]

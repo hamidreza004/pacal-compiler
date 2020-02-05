@@ -1,23 +1,20 @@
-from scanner.helper import input_char
+from scanner.helper import input_char, check_eof
 import errors
 import sys
-from scanner.words import all_token_words, key_token_words
-
-all_words = all_token_words
-key_words = key_token_words
-
-
-def token_to_map(str):
-    global all_words
-    return all_words.index(str)
-
-
-def map_to_token(ind):
-    global all_words
-    return all_words[ind]
-
+from scanner.words import *
 
 token = input_char()
+sym_table = {}
+
+
+def create_or_get(id):
+    if sym_table.get(id) is None:
+        sym_table[id] = {}
+    return sym_table
+
+
+def srz(type, data):
+    return {"type": type, "data": data}
 
 
 def get_token():
@@ -29,7 +26,13 @@ def get_token():
     if token is None:
         return None
 
-    if ord('0') <= ord(token) <= ord('9'):
+    if token == ':':
+        token = input_char()
+        if token == '=':
+            return srz(':=', None)
+        return srz(':', None)
+
+    if token.isdigit() or token == '.':
         return get_token_number()
 
     if token == '\'':
@@ -42,85 +45,177 @@ def get_token():
         token = input_char()
         if token == '-':
             return get_token_comment_one_line()
-        elif token == ' ' or token == '\n':
-            return token_to_map('-')
         else:
-            return get_token_negative_number()
+            return srz('-', None)
 
     if token == '/':
         token = input_char()
         if token == '/':
             return get_token_comment_one_line()
         elif token == ' ' or token == '\n':
-            return token_to_map('/')
+            return srz('-', None)
         else:
-            sys.exit(errors.CONCAT)
+            sys.exit(errors.SCANNER_EXCEPTION)
 
     if token == '<':
         token = input_char()
         if token == '-':
-            return get_token_comment_multiple_line()
+            token = input_char()
+            if token == '-':
+                return get_token_comment_multiple_lines()
+            sys.exit(errors.SCANNER_EXCEPTION)
         elif token == ' ' or token == '\n':
-            return token_to_map('<')
+            return srz('<', None)
         elif token == '>':
             token = input_char()
-            return token_to_map('<>')
+            return srz('<>', None)
         elif token == '=':
             token = input_char()
-            return token_to_map('<=')
+            return srz('<=', None)
         else:
-            sys.exit(errors.CONCAT)
+            sys.exit(errors.SCANNER_EXCEPTION)
 
     if token == '>':
         token = input_char()
         if token == '=':
             token = input_char()
-            return token_to_map('>=')
+            return srz('>=', None)
         elif token == ' ' or token == '\n':
-            return token_to_map('>')
+            return srz('>', None)
         else:
-            sys.exit(errors.CONCAT)
+            sys.exit(errors.SCANNER_EXCEPTION)
 
     if token == '~':
-        return get_token_not_number()
-
-    if token in ['+', '-', '*', '/', '&', '^', '|', '%', '~', ')', '(', ':', ';', '=']:
         token = input_char()
-        return token_to_map(token)
+        return srz('~', None)
 
-    if ord('a') <= ord(token) <= ord('z') or ord('A') <= ord(token) <= ord('Z'):
+    if token in white_spaces:
+        token = input_char()
+        return srz(token, None)
+
+    if token.isalpha():
         return get_token_id()
 
     sys.exit(errors.NO_VALID_TOKEN)
 
 
+def get_token_real_number():
+    global token
+    ans = 0
+    mul = 1
+    while True:
+        token = input_char()
+        check_eof()
+        if token.isdigit():
+            mul *= 0.1
+            ans = ans + (ord(token) - ord('0')) * mul
+        else:
+            return srz('const', ('real', ans))
+
+
 def get_token_number():
-    pass
+    global token
+    if token == '.':
+        return get_token_real_number()
+    elif token == '0':
+        token = input_char()
+        check_eof()
+        if token == 'x':
+            ans = 0
+            while True:
+                token = input_char()
+                check_eof()
+                if token.isdigit():
+                    ans = ans * 16 + ord(token) - ord('0')
+                elif ord('A') <= ord(token.upper()) <= ord('F'):
+                    ans = ans * 16 + ord(token.upper()) - ord('A') + 10
+                else:
+                    return srz('const', ('int', ans))
+        if token == '.':
+            return get_token_real_number()
+        if token == ' ' or token == '\n':
+            return srz('const', ('int', 0))
+        sys.exit(errors.SCANNER_EXCEPTION)
+    else:
+        ans = ord(token) - ord('0')
+        while True:
+            token = input_char()
+            check_eof()
+            if token.isdigit():
+                ans = ans * 10 + ord(token) - ord('0')
+            else:
+                if token == '.':
+                    ans = ans + get_token_real_number()[1][1]
+                    return srz('const', ('real', ans))
+                else:
+                    return srz('const', ('int', ans))
 
 
 def get_token_char():
-    pass
+    global token
+    token = input_char()
+    check_eof()
+    ans = token
+    token = input_char()
+    check_eof()
+    if token != "'":
+        sys.exit(errors.SCANNER_EXCEPTION)
+    token = input_char()
+    return srz('char', ans)
 
 
 def get_token_string():
-    pass
+    global token
+    ans = ""
+    while True:
+        token = input_char()
+        check_eof()
+        if token == '"':
+            token = input_char()
+            return srz('string', ans)
+        ans += token
 
 
 def get_token_comment_one_line():
-    pass
+    global token
+    while True:
+        token = input_char()
+        check_eof()
+        if token == '\n':
+            token = input_char()
+            return get_token()
 
 
-def get_token_negative_number():
-    pass
-
-
-def get_token_comment_multiple_line():
-    pass
-
-
-def get_token_not_number():
-    pass
+def get_token_comment_multiple_lines():
+    global token
+    a = 0
+    while True:
+        token = input_char()
+        check_eof()
+        if token == '-':
+            a += 1
+        elif token == '>':
+            if a > 2:
+                token = input_char()
+                return get_token()
+            a = 0
+        else:
+            a = 0
 
 
 def get_token_id():
-    pass
+    global token
+    ans = "" + token
+    while True:
+        token = input_char()
+
+        if token is None or (not token.isdigit() and not token.isalpha() and token != "_"):
+            if ans in types:
+                return srz('type', ans)
+            if ans in key_token_words:
+                return srz(ans, None)
+            if ans in boolean_consts:
+                return srz('boolean_const', ans == "true")
+            return srz('id', create_or_get(ans))
+
+        ans += token
