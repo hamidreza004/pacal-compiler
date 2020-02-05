@@ -3,6 +3,7 @@ import errors
 import sys
 from scanner.words import *
 
+
 token = None
 sym_table = {}
 
@@ -15,7 +16,7 @@ def initiate():
 def check_eof():
     global token
     if token is None:
-        sys.exit(errors.SCANNER_EXCEPTION)
+        raise errors.ScannerException(errors.SCANNER_EXCEPTION)
 
 
 def create_or_get(id):
@@ -67,7 +68,7 @@ def get_token():
         elif token == ' ' or token == '\n':
             return srz('/', None)
         else:
-            sys.exit(errors.SCANNER_EXCEPTION)
+            raise errors.ScannerException(errors.SCANNER_EXCEPTION)
 
     if token == '<':
         token = input_char()
@@ -76,7 +77,7 @@ def get_token():
             token = input_char()
             if token == '-':
                 return get_token_comment_multiple_lines()
-            sys.exit(errors.SCANNER_EXCEPTION)
+            raise errors.ScannerException(errors.SCANNER_EXCEPTION)
         elif token == ' ' or token == '\n':
             return srz('<', None)
         elif token == '>':
@@ -86,7 +87,7 @@ def get_token():
             token = input_char()
             return srz('<=', None)
         else:
-            sys.exit(errors.SCANNER_EXCEPTION)
+            raise errors.ScannerException(errors.SCANNER_EXCEPTION)
 
     if token == '>':
         token = input_char()
@@ -96,7 +97,7 @@ def get_token():
         elif token == ' ' or token == '\n':
             return srz('>', None)
         else:
-            sys.exit(errors.SCANNER_EXCEPTION)
+            raise errors.ScannerException(errors.SCANNER_EXCEPTION)
 
     if token == '~':
         token = input_char()
@@ -110,7 +111,7 @@ def get_token():
         token = input_char()
         return srz(c, None)
 
-    sys.exit(errors.NO_VALID_TOKEN)
+    raise errors.ScannerException(errors.NO_VALID_TOKEN)
 
 
 def get_token_real_number():
@@ -147,9 +148,8 @@ def get_token_number():
                     return srz('const', ('int', ans))
         if token == '.':
             return get_token_real_number()
-        if token == ' ' or token == '\n':
-            return srz('const', ('int', 0))
-        sys.exit(errors.SCANNER_EXCEPTION)
+
+        return srz('const', ('int', 0))
     else:
         ans = ord(token) - ord('0')
         while True:
@@ -173,7 +173,7 @@ def get_token_char():
     token = input_char()
     check_eof()
     if token != "'":
-        sys.exit(errors.SCANNER_EXCEPTION)
+        raise errors.ScannerException(errors.SCANNER_EXCEPTION)
     token = input_char()
     return srz('char', ans)
 
