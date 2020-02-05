@@ -25,7 +25,7 @@ begin
 
     while index < 10 do 
     begin
-        arr[index] := power(index, array[index]) ;
+        arr[index] := power(index, arr[index]) ;
         print(arr[index]) ;
     end 
 
