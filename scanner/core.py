@@ -1,84 +1,10 @@
 from scanner.helper import input_char
 import errors
 import sys
+from scanner.words import all_token_words, key_token_words
 
-key_words = [
-    "array",
-    "assign",
-    "boolean",
-    "break",
-    "begin",
-    "char",
-    "continue",
-    "do",
-    "else",
-    "end",
-    "false",
-    "function",
-    "procedure",
-    "if",
-    "integer",
-    "of",
-    "real",
-    "return",
-    "string",
-    "true",
-    "while",
-    "var",
-    "and",
-    "or"
-]
-
-all_words = {
-    "array",
-    "assign",
-    "boolean",
-    "break",
-    "begin",
-    "char",
-    "continue",
-    "do",
-    "else",
-    "end",
-    "false",
-    "function",
-    "procedure",
-    "if",
-    "integer",
-    "of",
-    "real",
-    "return",
-    "string",
-    "true",
-    "while",
-    "var",
-
-    "and",
-    "or",
-
-    "+",
-    "-",
-    "*",
-    "/",
-    "&",
-    "^",
-    "|",
-    "%",
-    '~',
-
-    "<",
-    ">",
-    "<=",
-    ">=",
-    "=",
-    "<>",
-
-    ")",
-    "(",
-    ":",
-    ";",
-
-}
+all_words = all_token_words
+key_words = key_token_words
 
 
 def token_to_map(str):
@@ -128,7 +54,7 @@ def get_token():
         elif token == ' ' or token == '\n':
             return token_to_map('/')
         else:
-            sys.exit(errors.CONCAT_ERROR)
+            sys.exit(errors.CONCAT)
 
     if token == '<':
         token = input_char()
@@ -143,7 +69,7 @@ def get_token():
             token = input_char()
             return token_to_map('<=')
         else:
-            sys.exit(errors.CONCAT_ERROR)
+            sys.exit(errors.CONCAT)
 
     if token == '>':
         token = input_char()
@@ -153,7 +79,7 @@ def get_token():
         elif token == ' ' or token == '\n':
             return token_to_map('>')
         else:
-            sys.exit(errors.CONCAT_ERROR)
+            sys.exit(errors.CONCAT)
 
     if token == '~':
         return get_token_not_number()
@@ -165,4 +91,36 @@ def get_token():
     if ord('a') <= ord(token) <= ord('z') or ord('A') <= ord(token) <= ord('Z'):
         return get_token_id()
 
-    return 1
+    sys.exit(errors.NO_VALID_TOKEN)
+
+
+def get_token_number():
+    pass
+
+
+def get_token_char():
+    pass
+
+
+def get_token_string():
+    pass
+
+
+def get_token_comment_one_line():
+    pass
+
+
+def get_token_negative_number():
+    pass
+
+
+def get_token_comment_multiple_line():
+    pass
+
+
+def get_token_not_number():
+    pass
+
+
+def get_token_id():
+    pass
