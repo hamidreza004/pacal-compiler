@@ -1,6 +1,6 @@
-from scanner.core import get_token
 import sys
-from scanner.helper import initiate
+from scanner import helper
+from scanner import core
 
 if __name__ == '__main__':
 
@@ -14,10 +14,11 @@ if __name__ == '__main__':
     with open(args[1], 'r') as f:
         src = ''.join(f.readlines())
 
-    initiate(src)
+    helper.initiate(src)
+    core.initiate()
 
     while True:
-        token = get_token()
+        token = core.get_token()
         print(token)
         if token is None:
             break

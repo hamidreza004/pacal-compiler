@@ -1,13 +1,25 @@
-from scanner.helper import input_char, check_eof
+from scanner.helper import input_char
 import errors
 import sys
 from scanner.words import *
 
-token = input_char()
+token = None
 sym_table = {}
 
 
+def initiate():
+    global token
+    token = input_char()
+
+
+def check_eof():
+    global token
+    if token is None:
+        sys.exit(errors.SCANNER_EXCEPTION)
+
+
 def create_or_get(id):
+    global sym_table
     if sym_table.get(id) is None:
         sym_table[id] = {}
     return sym_table
@@ -19,7 +31,6 @@ def srz(type, data):
 
 def get_token():
     global token
-
     while token == ' ' or token == '\n':
         token = input_char()
 
@@ -89,12 +100,13 @@ def get_token():
         token = input_char()
         return srz('~', None)
 
-    if token in white_spaces:
-        token = input_char()
-        return srz(token, None)
-
     if token.isalpha():
         return get_token_id()
+
+    if token in single_signs:
+        c = token
+        token = input_char()
+        return srz(c, None)
 
     sys.exit(errors.NO_VALID_TOKEN)
 

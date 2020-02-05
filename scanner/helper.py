@@ -14,18 +14,12 @@ def initiate(source):
 def input_char():
     global src
     global pointer
-
     if pointer >= len(src):
         return None
 
-    token = src[pointer]
+    ch = src[pointer]
     pointer += 1
-    if token == '\f' or token == '\r' or token == '\t' or token == '\v' or ord(token) == 32:
+    if ch == '\f' or ch == '\r' or ch == '\t' or ch == '\v' or ord(ch) == 32:
         return " "
-    return token
+    return ch
 
-
-def check_eof():
-    global token
-    if token is None:
-        sys.exit(errors.SCANNER_EXCEPTION)
