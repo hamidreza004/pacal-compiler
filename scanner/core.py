@@ -1,6 +1,5 @@
 from scanner.helper import input_char
 import errors
-import sys
 from scanner.words import *
 
 token = None
