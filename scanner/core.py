@@ -52,8 +52,10 @@ all_words = {
     "true",
     "while",
     "var",
+
     "and",
     "or",
+
     "+",
     "-",
     "*",
@@ -61,9 +63,21 @@ all_words = {
     "&",
     "^",
     "|",
-    "and",
-    "or",
     "%",
+    '~',
+
+    "<",
+    ">",
+    "<=",
+    ">=",
+    "=",
+    "<>",
+
+    ")",
+    "(",
+    ":",
+    ";",
+
 }
 
 
@@ -83,7 +97,7 @@ token = input_char()
 def get_token():
     global token
 
-    while token is not None and (ord(token) == ord(' ') or ord(token) == ord('\n')):
+    while token == ' ' or token == '\n':
         token = input_char()
 
     if token is None:
@@ -92,42 +106,63 @@ def get_token():
     if ord('0') <= ord(token) <= ord('9'):
         return get_token_number()
 
-    if ord(token) == ord('\''):
+    if token == '\'':
         return get_token_char()
 
-    if ord(token) == ord('"'):
+    if token == '"':
         return get_token_string()
 
-    if ord(token) == ord('-'):
+    if token == '-':
         token = input_char()
-        if ord(token) == ord('-'):
+        if token == '-':
             return get_token_comment_one_line()
-        elif ord(token) == ord(' ') or ord(token) == ord('\n'):
+        elif token == ' ' or token == '\n':
             return token_to_map('-')
         else:
             return get_token_negative_number()
 
-    if ord(token) == ord('/'):
+    if token == '/':
         token = input_char()
-        if ord(token) == ord('/'):
+        if token == '/':
             return get_token_comment_one_line()
-        elif ord(token) == ord(' ') or ord(token) == ord('\n'):
+        elif token == ' ' or token == '\n':
             return token_to_map('/')
         else:
             sys.exit(errors.CONCAT_ERROR)
 
-    if ord(token) == ord('<'):
+    if token == '<':
         token = input_char()
-        if ord(token) == ord('-'):
+        if token == '-':
             return get_token_comment_multiple_line()
-        elif ord(token) == ord(' ') or ord(token) == ord('\n'):
-                return token_to_map('<')
+        elif token == ' ' or token == '\n':
+            return token_to_map('<')
+        elif token == '>':
+            token = input_char()
+            return token_to_map('<>')
+        elif token == '=':
+            token = input_char()
+            return token_to_map('<=')
         else:
             sys.exit(errors.CONCAT_ERROR)
 
+    if token == '>':
+        token = input_char()
+        if token == '=':
+            token = input_char()
+            return token_to_map('>=')
+        elif token == ' ' or token == '\n':
+            return token_to_map('>')
+        else:
+            sys.exit(errors.CONCAT_ERROR)
+
+    if token == '~':
+        return get_token_not_number()
+
+    if token in ['+', '-', '*', '/', '&', '^', '|', '%', '~', ')', '(', ':', ';', '=']:
+        token = input_char()
+        return token_to_map(token)
+
     if ord('a') <= ord(token) <= ord('z') or ord('A') <= ord(token) <= ord('Z'):
         return get_token_id()
-
-
 
     return 1
