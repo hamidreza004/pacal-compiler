@@ -21,8 +21,8 @@ def check_eof():
 def create_or_get(id):
     global sym_table
     if sym_table.get(id) is None:
-        sym_table[id] = {}
-    return sym_table
+        sym_table[id] = {'name': id}
+    return sym_table[id]
 
 
 def srz(type, data):
@@ -40,6 +40,7 @@ def get_token():
     if token == ':':
         token = input_char()
         if token == '=':
+            token = input_char()
             return srz(':=', None)
         return srz(':', None)
 
@@ -64,7 +65,7 @@ def get_token():
         if token == '/':
             return get_token_comment_one_line()
         elif token == ' ' or token == '\n':
-            return srz('-', None)
+            return srz('/', None)
         else:
             sys.exit(errors.SCANNER_EXCEPTION)
 
