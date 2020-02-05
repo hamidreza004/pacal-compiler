@@ -3,9 +3,12 @@ import errors
 import sys
 from scanner.words import *
 
-
 token = None
 sym_table = {}
+
+
+def is_en_alpha(c):
+    return ord('a') <= ord(c) <= ord('z') or ord('A') <= ord(c) <= ord('Z')
 
 
 def initiate():
@@ -103,7 +106,7 @@ def get_token():
         token = input_char()
         return srz('~', None)
 
-    if token.isalpha():
+    if is_en_alpha(token):
         return get_token_id()
 
     if token in single_signs:
@@ -223,7 +226,7 @@ def get_token_id():
     while True:
         token = input_char()
 
-        if token is None or (not token.isdigit() and not token.isalpha() and token != "_"):
+        if token is None or (not token.isdigit() and not is_en_alpha(token) and token != "_"):
             if ans in types:
                 return srz('type', ans)
             if ans in key_token_words:
