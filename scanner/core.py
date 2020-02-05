@@ -38,7 +38,7 @@ def get_token():
         token = input_char()
 
     if token is None:
-        return None
+        return srz('$', None)
 
     if token == ':':
         token = input_char()
