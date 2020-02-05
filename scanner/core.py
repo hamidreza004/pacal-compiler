@@ -71,6 +71,7 @@ def get_token():
 
     if token == '<':
         token = input_char()
+
         if token == '-':
             token = input_char()
             if token == '-':
@@ -208,7 +209,7 @@ def get_token_comment_multiple_lines():
         if token == '-':
             a += 1
         elif token == '>':
-            if a > 2:
+            if a >= 2:
                 token = input_char()
                 return get_token()
             a = 0
