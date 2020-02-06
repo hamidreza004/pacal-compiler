@@ -2,7 +2,8 @@ import sys
 import csv
 import errors
 from scanner import helper
-from scanner import core
+from scanner.core import get_token, initiate
+from code_generator.core import generate
 
 GRAMMAR_PATH = 'table.csv'
 START_STATE = 1
@@ -13,9 +14,8 @@ def parse():
     global grammar
     state = START_STATE
     parse_stack = []
-    token = core.get_token()
+    token = get_token()
     while True:
-        print(state, token)
         data = grammar[(state, token['type'])].split(' ')
         if len(data) == 1:
             if data[0] == "ERROR":
@@ -35,16 +35,16 @@ def parse():
         if len(data) == 3:
             if data[0] == "SHIFT":
                 state = int(data[1][1:])
-                token = core.get_token()
-                # TODO: CODE GEN
+                generate(data[2], token)
+                token = get_token()
             elif data[0] == "PUSH_GOTO":
                 parse_stack.append(state)
+                generate(data[2], token)
                 state = int(data[1][1:])
-                # TODO: CODE GEN
             elif data[0] == "GOTO":
                 state = int(data[1][1:])
-                token = core.get_token()
-                # TODO: CODE GEN
+                generate(data[2], token)
+                token = get_token()
             else:
                 raise errors.ParserException(errors.INVALID_GRAMMAR)
 
@@ -61,7 +61,7 @@ if __name__ == '__main__':
         src = ''.join(f.readlines())
 
     helper.initiate(src)
-    core.initiate()
+    initiate()
 
     with open(GRAMMAR_PATH, 'r') as csv_file:
         reader = csv.reader(csv_file)
