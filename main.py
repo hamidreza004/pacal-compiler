@@ -2,8 +2,8 @@ import sys
 import csv
 import errors
 from scanner import helper
-from scanner.core import get_token, initiate
-from code_generator.core import generate
+from scanner.core import get_token, initiate as scanner_initiate
+from code_generator.core import generate, code, initiate as generator_initiate
 
 GRAMMAR_PATH = 'table.csv'
 START_STATE = 1
@@ -25,25 +25,25 @@ def parse():
 
         if len(data) == 2:
             if data[0] == "ACCEPT":
+                generate(data[1], token['data'])
                 print("Compilation completed with 0 errors.")
                 exit()
             elif data[0] == "REDUCE":
                 state = int(grammar[(parse_stack.pop(), data[1])].split(' ')[1][1:])
             else:
                 raise errors.ParserException(errors.INVALID_GRAMMAR)
-
         if len(data) == 3:
             if data[0] == "SHIFT":
                 state = int(data[1][1:])
-                generate(data[2], token)
+                generate(data[2], token['data'])
                 token = get_token()
             elif data[0] == "PUSH_GOTO":
                 parse_stack.append(state)
-                generate(data[2], token)
+                generate(data[2], token['data'])
                 state = int(data[1][1:])
             elif data[0] == "GOTO":
                 state = int(data[1][1:])
-                generate(data[2], token)
+                generate(data[2], token['data'])
                 token = get_token()
             else:
                 raise errors.ParserException(errors.INVALID_GRAMMAR)
@@ -61,7 +61,7 @@ if __name__ == '__main__':
         src = ''.join(f.readlines())
 
     helper.initiate(src)
-    initiate()
+    scanner_initiate()
 
     with open(GRAMMAR_PATH, 'r') as csv_file:
         reader = csv.reader(csv_file)
@@ -69,5 +69,10 @@ if __name__ == '__main__':
         for row in reader:
             for j, cell in enumerate(row[1:]):
                 grammar[(int(row[0]), header[j])] = cell
+
+    for line in code:
+        print(line)
+
+    generator_initiate()
 
     parse()
