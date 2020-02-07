@@ -50,7 +50,7 @@ def declare_var_and_push(token, sem_stack):
         var['line_dec'] = len(global_code)
         var['name'] = '@' + var['name']
         add_code(
-            f"{var['name']} = common global {var['type']} {variable_default[var['type']]}, align {var['align']}")
+            f"{var['name']} = global {var['type']} {variable_default[var['type']]}, align {var['align']}")
     sem_stack.append(var)
 
 
@@ -176,7 +176,7 @@ def assign(_, sem_stack):
     else:
         line = var_b['line_dec']
         if var_b['type'] != 'i8*':
-            global_code[line] = f"""{var_b['name']} = common global {var_b['type']} {variable_cast_func[var_b['type']](
+            global_code[line] = f"""{var_b['name']} = global {var_b['type']} {variable_cast_func[var_b['type']](
                 var_a['value'])}, align {var_b['align']}"""
         else:
 
@@ -239,3 +239,4 @@ def read(_, sem_stack):
         add_code(
             f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.r{var[
                 'type']}, i32 0, i32 0), {var['type']}* {var['name']})""")
+

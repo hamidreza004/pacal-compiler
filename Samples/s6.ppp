@@ -1,2 +1,2 @@
-a : array [10, 100] of character;
-b : integer := a[ 5 , 2 ];
+a : array [5, 4] of integer;
+b : integer := a[ 3 , 2 ];
