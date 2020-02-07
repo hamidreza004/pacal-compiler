@@ -240,7 +240,7 @@ def get_token_id():
             if ans in key_token_words:
                 return srz(ans, None)
             if ans in boolean_consts:
-                return srz('constant', ('boolean', ans == "true"))
+                return srz('constant', ('boolean', 1 if ans == "true" else 0))
             return srz('id', create_or_get(ans))
 
         ans += token

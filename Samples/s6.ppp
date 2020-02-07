@@ -1,3 +1,5 @@
+b : boolean := true;
+
 function main () : integer
 begin
     write("Hello World");
