@@ -1,7 +1,8 @@
-function f(a: array [10] of integer) : string
+function f(a: integer) : character
 begin
 end
 
 function main (a : integer) : integer
 begin
+    b : character := f(10);
 end

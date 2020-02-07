@@ -274,6 +274,7 @@ def end_dec_func(token, sem_stack):
         code_line = code_line + arg['type']
         first = False
     code_line = code_line + ") {"
+    func['type'] = variable_map[token]
     func_code[int(line)] = code_line
     level -= 1
 
@@ -325,9 +326,27 @@ def out_block(_, __):
     level -= 1
 
 
-def start_access_func():
+def start_access_func(_, sem_stack):
+    sem_stack.append("#")
     pass
 
 
-def end_access_func():
-    pass
+def start_access_prod(_, sem_stack):
+    start_access_func(_, sem_stack)
+
+
+def end_access_func(_, sem_stack):
+    global diff_count
+    code_line = ""
+    while True:
+        arg = sem_stack.pop()
+        if arg == "#":
+            code_line = code_line[1:]
+            break
+        code_line = "," + arg['type'] + " " + arg['name']
+    func = sem_stack.pop()
+    code_line = f"""%.tmp{diff_count} = call {func['type']} {func['name']}({code_line})"""
+    sem_stack.append(
+        {'level': level, 'name': f'%.tmp{diff_count}', 'type': func['type'], 'align': variable_size[func['type']]})
+    diff_count += 1
+    add_code(code_line)
