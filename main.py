@@ -4,7 +4,6 @@ import errors
 from scanner import helper
 from scanner.core import get_token, initiate as scanner_initiate
 from code_generator.core import generate, code, initiate as generator_initiate
-import prettytable
 
 GRAMMAR_PATH = 'table.csv'
 START_STATE = 1
@@ -69,12 +68,12 @@ if __name__ == '__main__':
         header = next(reader)[1:]
         for row in reader:
             for j, cell in enumerate(row[1:]):
-                grammar[(int(row[1].strip()), header[j].strip())] = cell
-    
+                grammar[(int(row[1].strip()), header[j].strip())] = cell.strip()
     print("Start Compiling...")
-    for line in code:
-        print(line)
 
     generator_initiate()
 
     parse()
+
+    for line in code:
+        print(line)

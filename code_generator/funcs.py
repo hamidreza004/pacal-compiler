@@ -3,6 +3,10 @@ from code_generator.helper import variable_map, variable_size, type_cast
 diff_count = 0
 
 
+def NoSem(_, __, ___):
+    pass
+
+
 def push(_, token, sem_stack):
     sem_stack.append(token)
 

@@ -22,4 +22,7 @@ def initiate():
 
 
 def generate(op, token):
-    getattr(funcs, op)(code, token, sem_stack)
+    try:
+        getattr(funcs, op)(code, token, sem_stack)
+    except AttributeError:
+        print("No Function Available for ", op)
