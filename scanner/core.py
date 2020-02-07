@@ -108,6 +108,13 @@ def get_token():
     if is_en_alpha(token):
         return get_token_id()
 
+    if token == '|':
+        token = input_char()
+        return 'bor'
+
+    if token == ',':
+        token = input_char()
+        return 'comma'
     if token in single_signs:
         c = token
         token = input_char()
@@ -127,7 +134,7 @@ def get_token_real_number():
             mul *= 0.1
             ans = ans + (ord(token) - ord('0')) * mul
         else:
-            return srz('const', ('real', ans))
+            return srz('constant', ('real', ans))
 
 
 def get_token_number():
@@ -147,11 +154,11 @@ def get_token_number():
                 elif ord('A') <= ord(token.upper()) <= ord('F'):
                     ans = ans * 16 + ord(token.upper()) - ord('A') + 10
                 else:
-                    return srz('const', ('int', ans))
+                    return srz('constant', ('int', ans))
         if token == '.':
             return get_token_real_number()
 
-        return srz('const', ('int', 0))
+        return srz('constant', ('int', 0))
     else:
         ans = ord(token) - ord('0')
         while True:
@@ -162,9 +169,9 @@ def get_token_number():
             else:
                 if token == '.':
                     ans = ans + get_token_real_number()[1][1]
-                    return srz('const', ('real', ans))
+                    return srz('constant', ('real', ans))
                 else:
-                    return srz('const', ('int', ans))
+                    return srz('constant', ('int', ans))
 
 
 def get_token_char():
@@ -188,7 +195,7 @@ def get_token_string():
         check_eof()
         if token == '"':
             token = input_char()
-            return srz('string', ans)
+            return srz('constant', ('string', ans))
         ans += token
 
 
@@ -231,7 +238,7 @@ def get_token_id():
             if ans in key_token_words:
                 return srz(ans, None)
             if ans in boolean_consts:
-                return srz('boolean_const', ans == "true")
+                return srz('constant', ('boolean', ans == "true"))
             return srz('id', create_or_get(ans))
 
         ans += token
