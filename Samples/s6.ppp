@@ -1,8 +1,9 @@
-function f(a: integer) : character
+function f(c: real; d: integer) : character
 begin
 end
 
-function main (a : integer) : integer
+function main () : integer
 begin
-    b : character := f(10);
+    a : real := 10.0 ;
+    b : character := f( 10 , a );
 end

@@ -155,6 +155,7 @@ def cast(var, type):
     add_code(f"%.tmp{diff_count} = {type_cast(var['type'], type)} {var['type']} {var['name']} to {type}")
 
 
+
 def assign(_, sem_stack):
     global diff_count
     var_a = sem_stack.pop()
@@ -338,13 +339,25 @@ def start_access_prod(_, sem_stack):
 def end_access_func(_, sem_stack):
     global diff_count
     code_line = ""
+    inp_args = []
     while True:
         arg = sem_stack.pop()
         if arg == "#":
-            code_line = code_line[1:]
             break
-        code_line = "," + arg['type'] + " " + arg['name']
+        inp_args.append(arg)
     func = sem_stack.pop()
+    ind = 0
+    for arg in inp_args:
+        def_arg = func['args'][ind]
+        if def_arg['type'] != arg['type']:
+            cast(arg, def_arg['type'])
+            code_line = "," + def_arg['type'] + " " + f"%.tmp{diff_count}"
+            diff_count += 1
+        else:
+            code_line = "," + def_arg['type'] + " " + arg['name']
+        ind += 1
+
+    code_line = code_line[1:]
     code_line = f"""%.tmp{diff_count} = call {func['type']} {func['name']}({code_line})"""
     sem_stack.append(
         {'level': level, 'name': f'%.tmp{diff_count}', 'type': func['type'], 'align': variable_size[func['type']]})
