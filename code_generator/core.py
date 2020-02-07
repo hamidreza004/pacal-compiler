@@ -1,10 +1,12 @@
 from code_generator import funcs
 
 sem_stack = []
-code = []
+code = None
 
 
-def initiate():
+def initiate(src_code):
+    global code
+    code = src_code
     code.append("""@.wi1 = private unnamed_addr constant[5 x i8] c"%d \0A\00", align 1""")
     code.append("""@.wi8 = private unnamed_addr constant[5 x i8] c"%c \0A\00", align 1""")
     code.append("""@.wi32 = private unnamed_addr constant[5 x i8] c"%d \0A\00", align 1""")
@@ -23,9 +25,7 @@ def initiate():
 
 def generate(op, token):
     try:
-        return
         getattr(funcs, op[1:])(code, token, sem_stack)
-        #print("Function Available for ", op, token)
     except AttributeError:
         print("No Function Available for ", op)
         pass
