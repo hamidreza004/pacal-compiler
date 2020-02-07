@@ -7,7 +7,7 @@ begin
     if c <> 1 then
     begin 
         write("not equal ! ") ;
-    end 
+    end;
     
     return 0 ;
 end 
