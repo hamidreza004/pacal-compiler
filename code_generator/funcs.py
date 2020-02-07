@@ -4,14 +4,14 @@ diff_count = 0
 
 
 def push(_, token, sem_stack):
-    sem_stack.append({'name': token})
+    sem_stack.append(token)
 
 
 def pop(_, __, sem_stack):
     sem_stack.pop()
 
 
-def def_var(code, token, sem_stack):
+def declare_var_and_push(code, token, sem_stack):
     var = sem_stack.pop()
     var['type'] = variable_map[token]
     var['align'] = variable_size[var['type']]
@@ -36,7 +36,7 @@ def cast(code, var, type):
     code.append(f"%.tmp{diff_count} = {type_cast(var['type'], type)} {var['type']} {var['name']} to {type}")
 
 
-def assign_var(code, _, sem_stack):
+def assign(code, _, sem_stack):
     global diff_count
     var_a = sem_stack.pop()
     var_b = sem_stack.pop()
@@ -50,6 +50,7 @@ def assign_var(code, _, sem_stack):
 
     store_var(code, var_b)
     diff_count += 1
+    sem_stack.append(var_b)
 
 
 def write(code, _, sem_stack):
@@ -67,7 +68,9 @@ def read(code, _, sem_stack):
     var = sem_stack.pop()
     if var['type'] == 'i64':
         code.append(
-            f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.r{var['type']}, i32 0, i32 0), {var['type']}* %{var['name']})""")
+            f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.r{var[
+                'type']}, i32 0, i32 0), {var['type']}* %{var['name']})""")
     else:
         code.append(
-            f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.r{var['type']}, i32 0, i32 0), {var['type']}* %{var['name']})""")
+            f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.r{var[
+                'type']}, i32 0, i32 0), {var['type']}* %{var['name']})""")

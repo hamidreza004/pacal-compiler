@@ -4,6 +4,7 @@ import errors
 from scanner import helper
 from scanner.core import get_token, initiate as scanner_initiate
 from code_generator.core import generate, code, initiate as generator_initiate
+import prettytable
 
 GRAMMAR_PATH = 'table.csv'
 START_STATE = 1
@@ -53,7 +54,7 @@ if __name__ == '__main__':
     args = sys.argv
 
     if len(args) != 2:
-        print("Invalid number of argumnets.")
+        print("Invalid number of arguments.")
         print("Usage: python main.py src.ppp")
         exit()
 
@@ -68,8 +69,9 @@ if __name__ == '__main__':
         header = next(reader)[1:]
         for row in reader:
             for j, cell in enumerate(row[1:]):
-                grammar[(int(row[0]), header[j])] = cell
-
+                grammar[(int(row[1].strip()), header[j].strip())] = cell
+    
+    print("Start Compiling...")
     for line in code:
         print(line)
 

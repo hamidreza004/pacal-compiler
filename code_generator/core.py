@@ -1,5 +1,4 @@
 from code_generator import funcs
-from scanner.core import sym_table
 
 sem_stack = []
 code = []
@@ -23,4 +22,4 @@ def initiate():
 
 
 def generate(op, token):
-    getattr(funcs, op)(code, sym_table, token)
+    getattr(funcs, op)(code, token, sem_stack)
