@@ -7,7 +7,6 @@ ARRAY_DIM_INTEGER = "Array dimension must be integer"
 NOT_ARRAY = "Array dimension must be integer"
 
 
-
 class ParserException(Exception):
     pass
 
