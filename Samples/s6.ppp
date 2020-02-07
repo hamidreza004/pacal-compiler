@@ -1,9 +1,7 @@
-function f(c: real; d: integer) : character
-begin
-end
+b : character := 'c';
 
 function main () : integer
 begin
-    a : real := 10.0 ;
-    b : character := f( 10 , a );
+    a : string := "Hello World!";
+    write(a);
 end

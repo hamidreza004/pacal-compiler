@@ -143,6 +143,7 @@ def load_var(var):
     add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
 
 
+
 def store_var(var):
     global diff_count
     add_code(f"store {var['type']} %.tmp{diff_count}, {var['type']}* {var['name']}, align {var['align']}")
@@ -153,7 +154,6 @@ def cast(var, type):
     if var['type'] == type:
         return
     add_code(f"%.tmp{diff_count} = {type_cast(var['type'], type)} {var['type']} {var['name']} to {type}")
-
 
 
 def assign(_, sem_stack):
@@ -180,6 +180,7 @@ def assign(_, sem_stack):
     else:
         line = var_b['line_dec']
         if var_b['type'] != 'i8*':
+            print(var_a)
             global_code[line] = f"""{var_b['name']} = global {var_b['type']} {variable_cast_func[var_b['type']](
                 var_a['value'])}, align {var_b['align']}"""
         else:
@@ -190,6 +191,8 @@ def assign(_, sem_stack):
 
         diff_count += 1
         sem_stack.append(var_b)
+
+    diff_count += 1
 
 
 const_define = {}
@@ -363,3 +366,5 @@ def end_access_func(_, sem_stack):
         {'level': level, 'name': f'%.tmp{diff_count}', 'type': func['type'], 'align': variable_size[func['type']]})
     diff_count += 1
     add_code(code_line)
+
+#def return_value(_, sem_stack):
