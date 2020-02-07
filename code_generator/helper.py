@@ -35,7 +35,7 @@ variable_default = {
 }
 
 variable_cast_func = {
-    'i1': int,
+    'i1': bool,
     'i8': str,
     'i8*': str,
     'i32': int,

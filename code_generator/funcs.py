@@ -140,6 +140,7 @@ def end_access_array(_, sem_stack):
 
 def load_var(var):
     global diff_count
+    #if var['type'] == 'i'
     add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
 
 
