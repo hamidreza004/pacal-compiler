@@ -184,7 +184,7 @@ def get_token_char():
     if token != "'":
         raise errors.ScannerException(errors.SCANNER_EXCEPTION)
     token = input_char()
-    return srz('char', ans)
+    return srz('constant', ('data', ans))
 
 
 def get_token_string():
