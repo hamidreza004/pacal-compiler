@@ -1,14 +1,7 @@
-function f(c: character; b: boolean; d: real; e: string) : string
+function f(a: array [10] of integer) : string
 begin
 end
-
-procedure a(c: character; b: boolean; d: real; e: string)
-begin
-end
-
-ak : integer := 1;
 
 function main (a : integer) : integer
 begin
-
 end

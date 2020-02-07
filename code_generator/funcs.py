@@ -265,6 +265,7 @@ def end_dec_func(token, sem_stack):
     func = sem_stack.pop()
     line = sem_stack.pop()
     print(func)
+    print(token)
     code_line = f"define {variable_map[token]} @{func['name']}("
     first = True
     for arg in func['args']:
