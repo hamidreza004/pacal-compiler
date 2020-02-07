@@ -1,8 +1,5 @@
-b : real := "4.4";
-
 function main () : integer
 begin
-    a : string := "Hello World!";
-    write(a);
+    write("Hello World");
     return 0;
 end

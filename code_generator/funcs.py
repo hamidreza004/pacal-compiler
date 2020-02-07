@@ -140,8 +140,14 @@ def end_access_array(_, sem_stack):
 
 def load_var(var):
     global diff_count
-    #if var['type'] == 'i'
-    add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
+    if var['type'] != 'i8*' or 'const' not in var:
+        add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
+    else:
+        add_code(f"""%.tmp{diff_count} = alloca i8*, align 8""")
+        add_code(f"""store i8* getelementptr inbounds ([{len(var['value']) + 1} x i8], [{len(
+            var['value']) + 1} x i8]* {var['name']}, i32 0, i32 0), i8** %.tmp{diff_count}, align 8""")
+        add_code(f"""%.tmp{diff_count + 1} = load i8*, i8** %.tmp{diff_count}, align 8""")
+        diff_count += 1
 
 
 def store_var(var):
@@ -233,8 +239,9 @@ def write(_, sem_stack):
     var = sem_stack.pop()
     load_var(var)
     add_code(
-        f""" call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.w{var['type']}, i32 0, i32 
-        0), {var['type']} %.tmp{diff_count}) """)
+        f""" call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.w{var['type'] if var[
+                                                                                                                'type'] != 'i8*' else "string"}, i32 0, i32 0), {
+        var['type']} %.tmp{diff_count}) """)
     diff_count += 1
 
 
@@ -243,12 +250,12 @@ def read(_, sem_stack):
     var = sem_stack.pop()
     if var['type'] == 'i64':
         add_code(
-            f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.r{var[
-                'type']}, i32 0, i32 0), {var['type']}* {var['name']})""")
+            f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.r{var['type'] if
+            var['type'] != 'i8*' else "string"}, i32 0, i32 0), {var['type']}* {var['name']})""")
     else:
         add_code(
-            f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.r{var[
-                'type']}, i32 0, i32 0), {var['type']}* {var['name']})""")
+            f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.r{var['type'] if
+            var['type'] != 'i8*' else "string"}, i32 0, i32 0), {var['type']}* {var['name']})""")
 
 
 def start_dec_func(_, sem_stack):
@@ -371,5 +378,8 @@ def end_access_func(_, sem_stack):
 
 
 def return_value(_, sem_stack):
+    global diff_count
     var = sem_stack.pop()
-    add_code(f"ret {var['type']} {var['name']}")
+    add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
+    add_code(f"ret {var['type']} %.tmp{diff_count}")
+    diff_count += 1
