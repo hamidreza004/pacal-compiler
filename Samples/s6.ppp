@@ -1,2 +1,13 @@
-a : array [5, 4] of integer;
-b : integer := a[ 3 , 2 ];
+function f(c: character; b: boolean; d: real; e: string) : string
+begin
+end
+
+procedure g(c: character; b: boolean; d: real; e: string) : string
+begin
+end
+
+
+function main (a : integer) : integer
+begin
+
+end

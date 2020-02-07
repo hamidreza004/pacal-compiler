@@ -6,7 +6,7 @@ global_code = []
 func_code = []
 const_code = []
 diff_count = 0
-level = 1
+level = 0
 
 
 def initiate(sym):
@@ -94,7 +94,7 @@ def end_dec_array_and_push(token, sem_stack):
     sem_stack.append(var)
 
 
-def start_access_array(token, sem_stack):
+def start_access_array(_, sem_stack):
     var = sem_stack.pop()
     if 'array' not in var:
         raise CodeGeneratorException(NOT_ARRAY)
@@ -102,7 +102,7 @@ def start_access_array(token, sem_stack):
     sem_stack.append("#")
 
 
-def end_access_array(token, sem_stack):
+def end_access_array(_, sem_stack):
     global diff_count
     index = []
     while True:
@@ -243,3 +243,88 @@ def read(_, sem_stack):
             f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.r{var[
                 'type']}, i32 0, i32 0), {var['type']}* {var['name']})""")
 
+
+def start_dec_func(_, sem_stack):
+    global func_code
+    global level
+    global sym_table
+    var = sem_stack.pop()
+    sym_table[level][var['pre']] = {'args': [], 'name': var['pre'], 'level': 0, 'pre': var['pre']}
+    var = sym_table[level][var['pre']]
+    sym_table[level][var['pre']] = var
+    sem_stack.append(len(func_code))
+    func_code.append("")
+    sem_stack.append(var)
+    level += 1
+
+
+def end_dec_func(token, sem_stack):
+    global func_code
+    global level
+    func = sem_stack.pop()
+    line = sem_stack.pop()
+    code_line = f"define {variable_map[token]} @{func['name']}("
+    first = True
+    for arg in func['args']:
+        if not first:
+            code_line += ','
+        code_line = code_line + arg['type']
+        first = False
+    code_line = code_line + ") {"
+    func_code[int(line)] = code_line
+    level -= 1
+
+
+def bracket_close(_, __):
+    global func_code
+    func_code.append('}')
+
+
+def start_dec_proc(token, sem_stack):
+    start_dec_func(token, sem_stack)
+
+
+def end_dec_proc(_, sem_stack):
+    global func_code
+    global level
+    func = sem_stack.pop()
+    line = sem_stack.pop()
+    code_line = f"define void @{func['name']}("
+    first = True
+    for arg in func['args']:
+        if not first:
+            code_line += ','
+        code_line = code_line + arg['type']
+        first = False
+    code_line = code_line + ") {"
+    func_code[int(line)] = code_line
+    level -= 1
+
+
+def declare_var_and_push_and_store(token, sem_stack):
+    declare_var_and_push(token, sem_stack)
+    arg = sem_stack.pop()
+    func = sem_stack.pop()
+    num_inp = len(func['args'])
+    add_code(f"""store {arg['type']} %{num_inp}, {arg['type']}* {arg['name']}, align {arg['align']}""")
+    func['args'].append(arg)
+    sem_stack.append(func)
+
+
+def enter_block():
+    global level
+    level += 1
+
+
+def out_block():
+    global level
+    sym_table[level].clear()
+    level -= 1
+
+
+def start_access_func():
+    pass
+
+
+def end_access_func():
+    pass
