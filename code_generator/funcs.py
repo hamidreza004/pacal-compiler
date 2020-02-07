@@ -160,6 +160,9 @@ def assign(_, sem_stack):
     var_a = sem_stack.pop()
     var_b = sem_stack.pop()
 
+    if var_a['level'] == 100:
+        raise CodeGeneratorException()
+
     if level > 0:
         if var_a['type'] == 'i8*' and 'const' in var_a:
             add_code(f"""store i8* getelementptr inbounds ([{len(var_a['value']) + 1} x i8], [{len(

@@ -4,7 +4,8 @@ PARSER_EXCEPTION = "Semantic error has occurred."
 INVALID_GRAMMAR = "Parse table is invalid."
 DOUBLE_DECLARE = "One variable declare twice in same scope."
 ARRAY_DIM_INTEGER = "Array dimension must be integer"
-NOT_ARRAY = "Array dimension must be integer"
+NOT_ARRAY = "It's an array."
+NOT_DECLARED = "Variable not declared."
 
 
 class ParserException(Exception):
