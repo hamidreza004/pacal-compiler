@@ -17,7 +17,8 @@ key_token_words = [
     "or",
     "then",
     "write",
-    "read"
+    "read",
+    "strlen"
 ]
 
 single_signs = [

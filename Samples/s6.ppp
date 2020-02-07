@@ -1,7 +1,13 @@
 b : boolean := true;
 
+function f(s : integer) : integer
+begin
+    return s;
+end
+
 function main () : integer
 begin
-    write("Hello World");
-    return 0;
+   a : integer := 10;
+   write(f(a));
+   return 0;
 end

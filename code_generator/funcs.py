@@ -26,7 +26,8 @@ def add_code(str):
     if level == 0:
         global_code.append(str)
     else:
-        func_code.append(str)
+        tabs = '\t' * level
+        func_code.append(tabs + str)
 
 
 def declare_var_and_push(token, sem_stack):
@@ -155,6 +156,12 @@ def store_var(var):
     add_code(f"store {var['type']} %.tmp{diff_count}, {var['type']}* {var['name']}, align {var['align']}")
 
 
+def un_pointer(var):
+    global diff_count
+    add_code(f"%.tmp{diff_count} = alloca {var['type']}, align {var['align']}")
+    add_code(f"store {var['type']} {var['name']}, {var['type']}* %.tmp{diff_count}, align {var['align']}")
+
+
 def cast(var, type):
     global diff_count
     if var['type'] == type:
@@ -239,8 +246,8 @@ def write(_, sem_stack):
     var = sem_stack.pop()
     load_var(var)
     add_code(
-        f""" call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.w{var['type'] if var[
-                                                                                                                'type'] != 'i8*' else "string"}, i32 0, i32 0), {
+        f"""call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.w{var['type'] if var[
+                                                                                                               'type'] != 'i8*' else "string"}, i32 0, i32 0), {
         var['type']} %.tmp{diff_count}) """)
     diff_count += 1
 
@@ -263,7 +270,7 @@ def start_dec_func(_, sem_stack):
     global level
     global sym_table
     var = sem_stack.pop()
-    sym_table[level][var['pre']] = {'args': [], 'name': var['pre'], 'level': 0, 'pre': var['pre']}
+    sym_table[level][var['pre']] = {'args': [], 'name': '@' + var['pre'], 'level': 0, 'pre': var['pre']}
     var = sym_table[level][var['pre']]
     sym_table[level][var['pre']] = var
     sem_stack.append(len(func_code))
@@ -279,7 +286,7 @@ def end_dec_func(token, sem_stack):
     line = sem_stack.pop()
     print(func)
     print(token)
-    code_line = f"define {variable_map[token]} @{func['name']}("
+    code_line = f"define {variable_map[token]} {func['name']}("
     first = True
     for arg in func['args']:
         if not first:
@@ -366,15 +373,20 @@ def end_access_func(_, sem_stack):
             code_line = "," + def_arg['type'] + " " + f"%.tmp{diff_count}"
             diff_count += 1
         else:
-            code_line = "," + def_arg['type'] + " " + arg['name']
+            load_var(arg)
+            code_line = "," + def_arg['type'] + " " + f"%.tmp{diff_count}"
+            diff_count += 1
         ind += 1
 
     code_line = code_line[1:]
     code_line = f"""%.tmp{diff_count} = call {func['type']} {func['name']}({code_line})"""
+    add_code(code_line)
+    ret_var = {'level': level, 'name': f'%.tmp{diff_count}', 'type': func['type'], 'align': variable_size[func['type']]}
+    diff_count += 1
+    un_pointer(ret_var)
     sem_stack.append(
         {'level': level, 'name': f'%.tmp{diff_count}', 'type': func['type'], 'align': variable_size[func['type']]})
     diff_count += 1
-    add_code(code_line)
 
 
 def return_value(_, sem_stack):
