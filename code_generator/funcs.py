@@ -217,6 +217,7 @@ def const_push(token, sem_stack):
                 f"""{var_name} = private unnamed_addr constant [{len(token[1]) + 1} x i8] c"{token[1]}\\00", align 1""")
 
         const_define[var_name] = None
+    var['level'] = 0
     var['const'] = True
     sem_stack.append(var)
 
@@ -263,6 +264,7 @@ def end_dec_func(token, sem_stack):
     global level
     func = sem_stack.pop()
     line = sem_stack.pop()
+    print(func)
     code_line = f"define {variable_map[token]} @{func['name']}("
     first = True
     for arg in func['args']:
@@ -311,12 +313,12 @@ def declare_var_and_push_and_store(token, sem_stack):
     sem_stack.append(func)
 
 
-def enter_block():
+def enter_block(_, __):
     global level
     level += 1
 
 
-def out_block():
+def out_block(_, __):
     global level
     sym_table[level].clear()
     level -= 1

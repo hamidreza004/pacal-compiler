@@ -2,10 +2,11 @@ function f(c: character; b: boolean; d: real; e: string) : string
 begin
 end
 
-procedure g(c: character; b: boolean; d: real; e: string) : string
+procedure a(c: character; b: boolean; d: real; e: string)
 begin
 end
 
+ak : integer := 1;
 
 function main (a : integer) : integer
 begin
