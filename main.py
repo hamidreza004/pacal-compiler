@@ -18,7 +18,6 @@ def parse():
     token = get_token()
     while True:
         data = grammar[(state, token['type'])].split(' ')
-        print(state, token, grammar[(state, token['type'])])
         if len(data) == 1:
             if data[0] == "ERROR":
                 raise errors.ParserException(errors.ParserException)
@@ -70,12 +69,12 @@ if __name__ == '__main__':
         header = next(reader)[1:]
         for row in reader:
             for j, cell in enumerate(row[1:]):
-                grammar[(int(row[1].strip()), header[j].strip())] = cell.strip()
+                grammar[(int(row[0].strip()), header[j].strip())] = cell.strip()
     print("Start Compiling...")
 
     generator_initiate(code)
-    print(code)
     parse()
 
+    print('__________________________________________________')
     for line in code:
         print(line)

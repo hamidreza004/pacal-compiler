@@ -154,11 +154,11 @@ def get_token_number():
                 elif ord('A') <= ord(token.upper()) <= ord('F'):
                     ans = ans * 16 + ord(token.upper()) - ord('A') + 10
                 else:
-                    return srz('constant', ('int', ans))
+                    return srz('constant', ('integer', ans))
         if token == '.':
             return get_token_real_number()
 
-        return srz('constant', ('int', 0))
+        return srz('constant', ('integer', 0))
     else:
         ans = ord(token) - ord('0')
         while True:
@@ -171,7 +171,7 @@ def get_token_number():
                     ans = ans + get_token_real_number()[1][1]
                     return srz('constant', ('real', ans))
                 else:
-                    return srz('constant', ('int', ans))
+                    return srz('constant', ('integer', ans))
 
 
 def get_token_char():
@@ -184,7 +184,7 @@ def get_token_char():
     if token != "'":
         raise errors.ScannerException(errors.SCANNER_EXCEPTION)
     token = input_char()
-    return srz('constant', ('data', ans))
+    return srz('constant', ('character', ans))
 
 
 def get_token_string():

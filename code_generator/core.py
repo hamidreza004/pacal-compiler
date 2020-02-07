@@ -24,6 +24,9 @@ def initiate(src_code):
 
 
 def generate(op, token):
+    print(op)
+    if op == "NoSem":
+        return
     try:
         getattr(funcs, op[1:])(code, token, sem_stack)
     except AttributeError:

@@ -52,7 +52,7 @@ white_spaces = [
 
 types = [
     'boolean',
-    'char',
+    'character',
     'integer',
     'long',
     'real',

@@ -1,6 +1,6 @@
 variable_map = {
     'boolean': 'i1',
-    'char': 'i8',
+    'character': 'i8',
     'integer': 'i32',
     'long': 'i64',
     'real': 'float',
@@ -23,6 +23,15 @@ variable_size = {
     'i32': '4',
     'i64': '8',
     'float': '4',
+}
+
+variable_default = {
+    'i1': '0',
+    'i8': '0',
+    'i8*': 'null',
+    'i32': '0',
+    'i64': '0',
+    'float': '0.0',
 }
 
 
