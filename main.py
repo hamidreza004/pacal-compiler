@@ -2,7 +2,7 @@ import sys
 import csv
 import errors
 from scanner import helper
-from scanner.core import get_token, initiate as scanner_initiate
+from scanner.core import get_token, initiate as scanner_initiate, sym_table
 from code_generator.core import generate, build_code, initiate as generator_initiate
 
 GRAMMAR_PATH = 'table.csv'
@@ -17,7 +17,7 @@ def parse():
     parse_stack = []
     token = get_token()
     while True:
-        print(state, token, grammar[state, token['type']])
+        #print(state, token, grammar[state, token['type']])
         data = grammar[(state, token['type'])].split(' ')
         if len(data) == 1:
             if data[0] == "ERROR":
@@ -74,8 +74,7 @@ if __name__ == '__main__':
             for j, cell in enumerate(row[1:]):
                 grammar[(int(row[0].strip()), header[j].strip())] = cell.strip()
     print("Start Compiling...")
-
-    generator_initiate(code)
+    generator_initiate(code, sym_table)
     parse()
     build_code()
 

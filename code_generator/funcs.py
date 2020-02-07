@@ -1,10 +1,17 @@
 from code_generator.helper import *
+from errors import *
 
+sym_table = None
 global_code = []
 func_code = []
 const_code = []
 diff_count = 0
-level = 1
+level = 0
+
+
+def initiate(sym):
+    global sym_table
+    sym_table = sym
 
 
 def push(token, sem_stack):
@@ -23,10 +30,18 @@ def add_code(str):
 
 
 def declare_var_and_push(token, sem_stack):
-    global level, func_code, global_code
+    global level, func_code, global_code, diff_count
     var = sem_stack.pop()
+    pre = var['pre']
+    if level == var['level']:
+        raise CodeGeneratorException(DOUBLE_DECLARE)
+    sym_table[level][pre] = {'name': pre + "." + str(level) + "." + str(diff_count), 'pre': pre, 'level': level}
+    var = sym_table[level][pre]
     var['type'] = variable_map[token]
     var['align'] = variable_size[var['type']]
+    var['level'] = level
+    diff_count += 1
+
     if level > 0:
         var['line_dec'] = len(func_code)
         var['name'] = '%' + var['name']
@@ -36,6 +51,40 @@ def declare_var_and_push(token, sem_stack):
         var['name'] = '@' + var['name']
         add_code(
             f"{var['name']} = common global {var['type']} {variable_default[var['type']]}, align {var['align']}")
+    sem_stack.append(var)
+
+
+def start_dec_array(_, sem_stack):
+    global diff_count
+    var = sem_stack.pop()
+    pre = var['pre']
+    if level == var['level']:
+        raise CodeGeneratorException(DOUBLE_DECLARE)
+    sym_table[level][pre] = {'name': pre + "." + str(level) + "." + str(diff_count), 'pre': pre, 'level': level}
+    diff_count += 1
+    var = sym_table[level][pre]
+    sem_stack.append(var)
+    sem_stack.append("#")
+
+
+def end_dec_array_and_push(token, sem_stack):
+    type = variable_map[token]
+    print(token, type)
+    line = str(type)
+    while True:
+        ic = sem_stack.pop()
+        if ic == '#':
+            break
+        if ic[0] != "integer":
+            raise CodeGeneratorException(ARRAY_DIM_INTEGER)
+        line = "[" + str(ic[1]) + " x " + line + "]"
+        print(line)
+    var = sem_stack.pop()
+    var['type'] = type
+    if level != 0:
+        add_code(f"""{var['name']} = alloca {line}, align 16""")
+    else:
+        add_code(f"""{var['name']} = common global {line} zeroinitializer, align 16""")
     sem_stack.append(var)
 
 
@@ -112,7 +161,7 @@ def const_push(token, sem_stack):
             const_code.append(f"{var_name} = global {var['type']} {token[1]}, align {var['align']}")
         else:
             const_code.append(
-                f"""{var_name} = private unnamed_addr constant [{len(token[1]) + 1} x i8] c"{token[1]}\00", align 1""")
+                f"""{var_name} = private unnamed_addr constant [{len(token[1]) + 1} x i8] c"{token[1]}\\00", align 1""")
 
         const_define[var_name] = None
     var['const'] = True
@@ -127,6 +176,10 @@ def write(_, sem_stack):
         f""" call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.w{var['type']}, i32 0, i32 
         0), {var['type']} %.tmp{diff_count}) """)
     diff_count += 1
+
+
+def start_access_array():
+    pass
 
 
 def read(_, sem_stack):

@@ -3,14 +3,16 @@ import errors
 from scanner.words import *
 
 token = None
-sym_table = {}
+sym_table = [{} for i in range(101)]
 
 
 def create_or_get(id):
     global sym_table
-    if sym_table.get(id) is None:
-        sym_table[id] = {'name': id}
-    return sym_table[id]
+    for i in reversed(range(0, 100)):
+        if sym_table[i].get(id) is not None:
+            return sym_table[i][id]
+    sym_table[100][id] = {'pre': id, 'name': id + ".100", 'level': 100}
+    return sym_table[100][id]
 
 
 def is_en_alpha(c):

@@ -1,2 +1,1 @@
-c : string := "salam azizam";
-d : string := c;
+a : array [10, 20, 30, 40] of character;

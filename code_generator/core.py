@@ -7,7 +7,7 @@ func_code = []
 const_code = []
 
 
-def initiate(src_code):
+def initiate(src_code, sym_table):
     global code
     code = src_code
     const_code.append("""@.wi1 = private unnamed_addr constant[5 x i8] c"%d \0A\00", align 1""")
@@ -27,13 +27,14 @@ def initiate(src_code):
     funcs.global_code = global_code
     funcs.const_code = const_code
     funcs.func_code = func_code
+    funcs.initiate(sym_table)
 
 
 def generate(op, token):
-    print(op)
     if op == "NoSem":
         return
     try:
+        print(op)
         getattr(funcs, op[1:])(token, sem_stack)
     except AttributeError:
         print("No Function Available for ", op)
