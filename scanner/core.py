@@ -114,7 +114,7 @@ def get_token():
 
     if token == ',':
         token = input_char()
-        return 'comma'
+        return srz('comma', None)
     if token in single_signs:
         c = token
         token = input_char()

@@ -23,7 +23,7 @@ begin
     arr : array [10] of integer ;
     index : integer := 0 ;
 
-    while index < 10 do 
+    while index < 10 do
     begin
         arr[index] := power(index, arr[index]) ;
         print(arr[index]) ;
