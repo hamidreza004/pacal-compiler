@@ -374,7 +374,7 @@ def end_access_func(_, sem_stack):
             diff_count += 1
         else:
             load_var(arg)
-            code_line = "," + def_arg['type'] + " " + f"%.tmp{diff_count}"
+            code_line = "," + def_arg['type'] + " " + f"%.tmp{diff_count}" + code_line
             diff_count += 1
         ind += 1
 
