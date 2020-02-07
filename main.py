@@ -6,7 +6,7 @@ from scanner.core import get_token, initiate as scanner_initiate
 from code_generator.core import generate, code, initiate as generator_initiate
 
 GRAMMAR_PATH = 'table.csv'
-START_STATE = 1
+START_STATE = 0
 grammar = {}
 
 
@@ -17,6 +17,7 @@ def parse():
     token = get_token()
     while True:
         data = grammar[(state, token['type'])].split(' ')
+        print(state, token, grammar[(state, token['type'])])
         if len(data) == 1:
             if data[0] == "ERROR":
                 raise errors.ParserException(errors.ParserException)
