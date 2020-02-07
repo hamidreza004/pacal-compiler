@@ -6,6 +6,13 @@ token = None
 sym_table = {}
 
 
+def create_or_get(id):
+    global sym_table
+    if sym_table.get(id) is None:
+        sym_table[id] = {'name': id}
+    return sym_table[id]
+
+
 def is_en_alpha(c):
     return ord('a') <= ord(c) <= ord('z') or ord('A') <= ord(c) <= ord('Z')
 
@@ -19,13 +26,6 @@ def check_eof():
     global token
     if token is None:
         raise errors.ScannerException(errors.SCANNER_EXCEPTION)
-
-
-def create_or_get(id):
-    global sym_table
-    if sym_table.get(id) is None:
-        sym_table[id] = {'name': id}
-    return sym_table[id]
 
 
 def srz(type, data):
@@ -168,7 +168,7 @@ def get_token_number():
                 ans = ans * 10 + ord(token) - ord('0')
             else:
                 if token == '.':
-                    ans = ans + get_token_real_number()[1][1]
+                    ans = ans + get_token_real_number()['data'][1]
                     return srz('constant', ('real', ans))
                 else:
                     return srz('constant', ('integer', ans))

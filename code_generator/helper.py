@@ -34,6 +34,15 @@ variable_default = {
     'float': '0.0',
 }
 
+variable_cast_func = {
+    'i1': int,
+    'i8': int,
+    'i8*': str,
+    'i32': int,
+    'i64': int,
+    'float': float,
+}
+
 
 def type_cast(type_a, type_b):
     if type_a == type_b:

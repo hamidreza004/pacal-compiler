@@ -3,7 +3,7 @@ import csv
 import errors
 from scanner import helper
 from scanner.core import get_token, initiate as scanner_initiate
-from code_generator.core import generate, initiate as generator_initiate
+from code_generator.core import generate, build_code, initiate as generator_initiate
 
 GRAMMAR_PATH = 'table.csv'
 START_STATE = 0
@@ -17,6 +17,7 @@ def parse():
     parse_stack = []
     token = get_token()
     while True:
+        print(state, token, grammar[state, token['type']])
         data = grammar[(state, token['type'])].split(' ')
         if len(data) == 1:
             if data[0] == "ERROR":
@@ -30,7 +31,9 @@ def parse():
                 print("Compilation completed with 0 errors.")
                 return
             elif data[0] == "REDUCE":
-                state = int(grammar[(parse_stack.pop(), data[1])].split(' ')[1][1:])
+                nxt_data = grammar[(parse_stack.pop(), data[1])].split(' ')
+                generate(nxt_data[2], data[1])
+                state = int(nxt_data[1][1:])
             else:
                 raise errors.ParserException(errors.INVALID_GRAMMAR)
         if len(data) == 3:
@@ -74,6 +77,7 @@ if __name__ == '__main__':
 
     generator_initiate(code)
     parse()
+    build_code()
 
     print('__________________________________________________')
     for line in code:

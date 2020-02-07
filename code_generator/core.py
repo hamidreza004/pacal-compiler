@@ -2,25 +2,31 @@ from code_generator import funcs
 
 sem_stack = []
 code = None
+global_code = []
+func_code = []
+const_code = []
 
 
 def initiate(src_code):
     global code
     code = src_code
-    code.append("""@.wi1 = private unnamed_addr constant[5 x i8] c"%d \0A\00", align 1""")
-    code.append("""@.wi8 = private unnamed_addr constant[5 x i8] c"%c \0A\00", align 1""")
-    code.append("""@.wi32 = private unnamed_addr constant[5 x i8] c"%d \0A\00", align 1""")
-    code.append("""@.wi64 = private unnamed_addr constant[5 x i8] c"%ld\0A\00", align 1""")
-    code.append("""@.wfloat = private unnamed_addr constant[5 x i8] c"%f \0A\00", align 1""")
-    code.append("""@.wstring = private unnamed_addr constant[5 x i8] c"%s \0A\00", align 1""")
-    code.append("""@.ri1 = private unnamed_addr constant[3 x i8] c"%d\00", align 1""")
-    code.append("""@.ri8 = private unnamed_addr constant[3 x i8] c"%c\00", align 1""")
-    code.append("""@.ri32 = private unnamed_addr constant[3 x i8] c"%d\00", align 1""")
-    code.append("""@.ri64 = private unnamed_addr constant[4 x i8] c"%ld\00", align 1""")
-    code.append("""@.rfloat = private unnamed_addr constant[3 x i8] c"%f\00", align 1""")
-    code.append("""@.rstring = private unnamed_addr constant[3 x i8] c"%s\00", align 1""")
-    code.append("""declare i32 @printf(i8*, ...)""")
-    code.append("""declare i32 @__isoc99_scanf(i8*, ...)""")
+    const_code.append("""@.wi1 = private unnamed_addr constant[5 x i8] c"%d \0A\00", align 1""")
+    const_code.append("""@.wi8 = private unnamed_addr constant[5 x i8] c"%c \0A\00", align 1""")
+    const_code.append("""@.wi32 = private unnamed_addr constant[5 x i8] c"%d \0A\00", align 1""")
+    const_code.append("""@.wi64 = private unnamed_addr constant[5 x i8] c"%ld\0A\00", align 1""")
+    const_code.append("""@.wfloat = private unnamed_addr constant[5 x i8] c"%f \0A\00", align 1""")
+    const_code.append("""@.wstring = private unnamed_addr constant[5 x i8] c"%s \0A\00", align 1""")
+    const_code.append("""@.ri1 = private unnamed_addr constant[3 x i8] c"%d\00", align 1""")
+    const_code.append("""@.ri8 = private unnamed_addr constant[3 x i8] c"%c\00", align 1""")
+    const_code.append("""@.ri32 = private unnamed_addr constant[3 x i8] c"%d\00", align 1""")
+    const_code.append("""@.ri64 = private unnamed_addr constant[4 x i8] c"%ld\00", align 1""")
+    const_code.append("""@.rfloat = private unnamed_addr constant[3 x i8] c"%f\00", align 1""")
+    const_code.append("""@.rstring = private unnamed_addr constant[3 x i8] c"%s\00", align 1""")
+    const_code.append("""declare i32 @printf(i8*, ...)""")
+    const_code.append("""declare i32 @__isoc99_scanf(i8*, ...)""")
+    funcs.global_code = global_code
+    funcs.const_code = const_code
+    funcs.func_code = func_code
 
 
 def generate(op, token):
@@ -28,7 +34,17 @@ def generate(op, token):
     if op == "NoSem":
         return
     try:
-        getattr(funcs, op[1:])(code, token, sem_stack)
+        getattr(funcs, op[1:])(token, sem_stack)
     except AttributeError:
         print("No Function Available for ", op)
         pass
+
+
+def build_code():
+    global code
+    for line in const_code:
+        code.append(line)
+    for line in global_code:
+        code.append(line)
+    for line in func_code:
+        code.append(line)
