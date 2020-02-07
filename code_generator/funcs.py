@@ -143,7 +143,6 @@ def load_var(var):
     add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
 
 
-
 def store_var(var):
     global diff_count
     add_code(f"store {var['type']} %.tmp{diff_count}, {var['type']}* {var['name']}, align {var['align']}")
@@ -180,9 +179,11 @@ def assign(_, sem_stack):
     else:
         line = var_b['line_dec']
         if var_b['type'] != 'i8*':
-            print(var_a)
+            value = var_a['value']
+            if var_a['type'] == 'i8':
+                value = ord(value)
             global_code[line] = f"""{var_b['name']} = global {var_b['type']} {variable_cast_func[var_b['type']](
-                var_a['value'])}, align {var_b['align']}"""
+                value)}, align {var_b['align']}"""
         else:
 
             global_code[line] = f"""{var_b['name']} = global i8* getelementptr inbounds ([{len(
@@ -367,4 +368,7 @@ def end_access_func(_, sem_stack):
     diff_count += 1
     add_code(code_line)
 
-#def return_value(_, sem_stack):
+
+def return_value(_, sem_stack):
+    var = sem_stack.pop()
+    add_code(f"ret {var['type']} {var['name']}")
