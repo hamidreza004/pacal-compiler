@@ -52,6 +52,6 @@ def type_cast(type_a, type_b):
     if type_b == "float":
         return "sitofp"
     if variable_order.index(type_a) < variable_order.index(type_b):
-        return "trunc"
-    if variable_order.index(type_a) > variable_order.index(type_b):
         return "sext"
+    if variable_order.index(type_a) > variable_order.index(type_b):
+        return "trunc"

@@ -6,7 +6,7 @@ global_code = []
 func_code = []
 const_code = []
 diff_count = 0
-level = 0
+level = 1
 
 
 def initiate(sym):
@@ -69,23 +69,73 @@ def start_dec_array(_, sem_stack):
 
 def end_dec_array_and_push(token, sem_stack):
     type = variable_map[token]
-    print(token, type)
     line = str(type)
+    tmp_list = []
     while True:
         ic = sem_stack.pop()
         if ic == '#':
             break
         if ic[0] != "integer":
             raise CodeGeneratorException(ARRAY_DIM_INTEGER)
+        tmp_list.append(ic[1])
         line = "[" + str(ic[1]) + " x " + line + "]"
-        print(line)
     var = sem_stack.pop()
+    var['array'] = []
+    for i in range(len(tmp_list)):
+        var['array'].append(tmp_list[len(tmp_list) - i - 1])
     var['type'] = type
-    if level != 0:
+    var['align'] = variable_size[var['type']]
+    if level > 0:
+        var['name'] = '%' + var['name']
         add_code(f"""{var['name']} = alloca {line}, align 16""")
     else:
+        var['name'] = '@' + var['name']
         add_code(f"""{var['name']} = common global {line} zeroinitializer, align 16""")
     sem_stack.append(var)
+
+
+def start_access_array(token, sem_stack):
+    var = sem_stack.pop()
+    if 'array' not in var:
+        raise CodeGeneratorException(NOT_ARRAY)
+    sem_stack.append(var)
+    sem_stack.append("#")
+
+
+def end_access_array(token, sem_stack):
+    global diff_count
+    index = []
+    while True:
+        ic = sem_stack.pop()
+        if ic == '#':
+            break
+        if ic['type'] != "i32":
+            raise CodeGeneratorException(ARRAY_DIM_INTEGER)
+        index.append(ic)
+    var = sem_stack.pop()
+    i = 0
+    print(index, var['array'])
+    while True:
+        line = str(var['type'])
+        for j in range(0, len(var['array']) - i):
+            line = "[" + str(var['array'][len(var['array']) - j - 1]) + " x " + line + "]"
+        print(line, index)
+        ic = index.pop()
+        add_code(f"""%.tmp{diff_count} = load {ic['type']}, {ic['type']}* {ic['name']}, align {ic['align']}""")
+        add_code(f"""%.tmp{diff_count + 1} = sext {ic['type']} %.tmp{diff_count} to i64""")
+        if i == 0:
+            add_code(f"""%.tmp{diff_count + 2} = getelementptr inbounds {line}, {line}* {var[
+                'name']}, i64 0, i64 %.tmp{diff_count + 1}""")
+        else:
+            add_code(
+                f"""%.tmp{diff_count + 2} = getelementptr inbounds {line}, {line}* %.tmp{diff_count - 1}, i64 0, i64 %.tmp{diff_count + 1}""")
+        diff_count += 3
+        i += 1
+        if i == len(var['array']):
+            break
+
+    sem_stack.append(
+        {"name": f"%.tmp{diff_count - 1}", "type": var['type'], "level": level, "align": variable_size[var['type']]})
 
 
 def load_var(var):
@@ -118,7 +168,7 @@ def assign(_, sem_stack):
             load_var(var_a)
 
             if var_b['type'] != var_a['type']:
-                tmp_var = {'name': f'.tmp{diff_count}', 'type': var_a['type'], 'align': var_a['align']}
+                tmp_var = {'name': f'%.tmp{diff_count}', 'type': var_a['type'], 'align': var_a['align']}
                 diff_count += 1
                 cast(tmp_var, var_b['type'])
             store_var(var_b)
@@ -176,10 +226,6 @@ def write(_, sem_stack):
         f""" call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.w{var['type']}, i32 0, i32 
         0), {var['type']} %.tmp{diff_count}) """)
     diff_count += 1
-
-
-def start_access_array():
-    pass
 
 
 def read(_, sem_stack):

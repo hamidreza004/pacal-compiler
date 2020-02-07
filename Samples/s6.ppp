@@ -1,1 +1,2 @@
-a : array [10, 20, 30, 40] of character;
+a : array [10, 100] of character;
+b : integer := a[ 5 , 2 ];
