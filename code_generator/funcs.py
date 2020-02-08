@@ -345,8 +345,10 @@ def end_dec_func(token, sem_stack):
 
 def bracket_close(_, sem_stack):
     global func_code
+    func = sem_stack.pop()
+    if 'type' not in func:
+        func_code.append('ret void')
     func_code.append('}')
-    sem_stack.pop()
 
 
 def start_dec_proc(token, sem_stack):
@@ -358,7 +360,7 @@ def end_dec_proc(_, sem_stack):
     global level
     func = sem_stack.pop()
     line = sem_stack.pop()
-    code_line = f"define void @{func['name']}("
+    code_line = f"define void {func['name']}("
     first = True
     for arg in func['args']:
         if not first:
@@ -397,7 +399,7 @@ def start_access_func(_, sem_stack):
     pass
 
 
-def start_access_prod(_, sem_stack):
+def start_access_proc(_, sem_stack):
     start_access_func(_, sem_stack)
 
 
@@ -436,6 +438,37 @@ def end_access_func(_, sem_stack):
     sem_stack.append(
         {'level': level, 'name': f'%.tmp{diff_count}', 'type': func['type'], 'align': variable_size[func['type']]})
     diff_count += 1
+
+
+def end_access_proc(_, sem_stack):
+    global diff_count
+    code_line = ""
+    inp_args = []
+    while True:
+        arg = sem_stack.pop()
+        if arg == "#":
+            break
+        inp_args.append(arg)
+    func = sem_stack.pop()
+    ind = 0
+    for arg in inp_args:
+        def_arg = func['args'][ind]
+        if def_arg['type'] != arg['type']:
+            add_code(f"%.tmp{diff_count} = load {arg['type']}, {arg['type']}* {arg['name']}, align {arg['align']}")
+            new_var = {'name': f'%.tmp{diff_count}', 'type': arg['type'], 'align': arg['align']}
+            diff_count += 1
+            cast(new_var, def_arg['type'])
+            code_line = "," + def_arg['type'] + " " + f"%.tmp{diff_count}"
+            diff_count += 1
+        else:
+            load_var(arg)
+            code_line = "," + def_arg['type'] + " " + f"%.tmp{diff_count}" + code_line
+            diff_count += 1
+        ind += 1
+
+    code_line = code_line[1:]
+    code_line = f"""call void {func['name']}({code_line})"""
+    add_code(code_line)
 
 
 def return_value(_, sem_stack):
