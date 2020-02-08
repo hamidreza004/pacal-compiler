@@ -3,11 +3,15 @@ a : integer;
 function main () : integer
 begin
     b : integer := 23;
-    write(a);
+    a : integer := 1;
+    if 1 then
     begin
+        a : integer := 1;
         d : integer;
-    end
+    end;
+    write(c);
     g : integer;
+    return 0;
 end
 
 c : real;

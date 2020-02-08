@@ -1,7 +1,6 @@
 function main () : integer
 begin
    a : boolean := 4.2;
-
    write(a);
    return 0;
 end

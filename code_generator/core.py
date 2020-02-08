@@ -10,6 +10,7 @@ const_code = []
 def initiate(src_code, sym_table):
     global code
     code = src_code
+    const_code.append("""target triple = "x86_64-pc-linux-gnu" """)
     const_code.append("""@.wi1 = private unnamed_addr constant[3 x i8] c"%d\\00", align 1""")
     const_code.append("""@.wi8 = private unnamed_addr constant[3 x i8] c"%c\\00", align 1""")
     const_code.append("""@.wi32 = private unnamed_addr constant[3 x i8] c"%d\\00", align 1""")
