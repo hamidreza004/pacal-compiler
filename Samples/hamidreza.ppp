@@ -1,7 +1,6 @@
 function main() : integer
 begin
     index : integer := 10 ;
-
     index := 5;
     return 0 ;
 end 
