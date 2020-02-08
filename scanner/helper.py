@@ -1,6 +1,3 @@
-import sys
-import errors
-
 src = None
 pointer = None
 
@@ -22,4 +19,3 @@ def input_char():
     if ch == '\f' or ch == '\r' or ch == '\t' or ch == '\v' or ord(ch) == 32:
         return " "
     return ch
-
