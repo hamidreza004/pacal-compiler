@@ -22,13 +22,13 @@ begin
     arr : array [10] of integer ;
     index : integer := 0 ;
 
-    while index < 10 do
+    while index < 10 do 
     begin
         arr[index] := index;
         arr[index] := product(index, arr[index]) ;
         print(arr[index]) ;
         index := index + 1;
-    end;
+    end; 
 
     return 0 ;
 end
