@@ -17,7 +17,7 @@ def parse():
     parse_stack = []
     token = get_token()
     while True:
-        #print(state, token, grammar[state, token['type']])
+        # print(state, token, grammar[state, token['type']])
         data = grammar[(state, token['type'])].split(' ')
         if len(data) == 1:
             if data[0] == "ERROR":
@@ -78,6 +78,6 @@ if __name__ == '__main__':
     parse()
     build_code()
 
-    print('__________________________________________________')
-    for line in code:
-        print(line)
+    with open('code.ppp', 'w') as f:
+        for line in code:
+            f.writelines(line)

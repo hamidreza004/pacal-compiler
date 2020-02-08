@@ -1,8 +1,7 @@
 function main () : integer
 begin
-   a : integer := 3;
-   b : integer := 0;
-   c : boolean := a;
+   a : real := 3.342;
+   c : long := a;
    write(c);
    return 0;
 end
