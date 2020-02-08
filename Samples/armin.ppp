@@ -1,5 +1,5 @@
 
-function chaap(a : integer; b : string) : integer
+procedure chaap(a : integer; b : string)
 begin
     write(b);
     b := "shir";
