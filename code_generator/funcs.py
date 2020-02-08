@@ -530,17 +530,147 @@ def logical_and(_, sem_stack):
     multiple_expr_command(sem_stack, var_a, var_b, 'i1', 'and')
 
 
-def bitwise_or(_, sem_stack):
-    var_b = sem_stack.pop()
-    var_a = sem_stack.pop()
-    if var_a['type'] == 'i64' or var_b['type'] == 'i64':
+def bitwise_cast(type_a, type_b):
+    if type_a == 'i64' or type_b == 'i64':
         type = 'i64'
-    elif var_a['type'] == 'i32' or var_b['type'] == 'i32':
+    elif type_a == 'i32' or type_b == 'i32':
         type = 'i32'
-    elif var_a['type'] == 'i8' or var_b['type'] == 'i8':
+    elif type_a == 'i8' or type_b == 'i8':
         type = 'i8'
-    elif var_a['type'] == 'i1' or var_b['type'] == 'i1':
+    elif type_a == 'i1' or type_b == 'i1':
         type = 'i1'
     else:
         type = 'i32'
-    multiple_expr_command(sem_stack, var_a, var_b, type, 'or')
+    return type
+
+
+def logical_xor(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    multiple_expr_command(sem_stack, var_a, var_b, 'i1', 'xor')
+
+
+def bitwise_or(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    multiple_expr_command(sem_stack, var_a, var_b, bitwise_cast(var_a['type'], var_b['type']), 'or')
+
+
+def bitwise_xor(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    multiple_expr_command(sem_stack, var_a, var_b, bitwise_cast(var_a['type'], var_b['type']), 'xor')
+
+
+def bitwise_and(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    multiple_expr_command(sem_stack, var_a, var_b, bitwise_cast(var_a['type'], var_b['type']), 'and')
+
+
+def arithmetic_cast(type_a, type_b):
+    if type_a == 'float' or type_b == 'float':
+        type = 'float'
+    elif type_a == 'i64' or type_b == 'i64':
+        type = 'i64'
+    elif type_a == 'i32' or type_b == 'i32':
+        type = 'i32'
+    elif type_a == 'i8' or type_b == 'i8':
+        type = 'i8'
+    elif type_a == 'i1' or type_b == 'i1':
+        type = 'i1'
+    else:
+        type = 'i32'
+    return type
+
+
+def add(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    type = arithmetic_cast(var_a['type'], var_b['type'])
+    if type == "float":
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'fadd')
+    else:
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'add')
+
+
+def div(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    type = arithmetic_cast(var_a['type'], var_b['type'])
+    if type == "float":
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'fdiv')
+    else:
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'sdiv')
+
+
+def mul(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    type = arithmetic_cast(var_a['type'], var_b['type'])
+    if type == "float":
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'fmul')
+    else:
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'mul')
+
+
+def minus(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    type = arithmetic_cast(var_a['type'], var_b['type'])
+    if type == "float":
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'fsub')
+    else:
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'sub')
+
+
+def mod(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    type = bitwise_cast(var_a['type'], var_b['type'])
+    multiple_expr_command(sem_stack, var_a, var_b, type, 'srem')
+
+
+def neg(token, sem_stack):
+    var = sem_stack.pop()
+    const_push(('integer', 0), sem_stack)
+    sem_stack.append(var)
+    minus(token, sem_stack)
+
+
+def tilda(token, sem_stack):
+    var = sem_stack.pop()
+    const_push(('boolean', 1), sem_stack)
+    sem_stack.append(var)
+    logical_xor(token, sem_stack)
+
+
+def start_bulk_var(_, sem_stack):
+    sem_stack.append('#')
+
+
+def start_bulk_value(_, sem_stack):
+    sem_stack.append('#')
+
+
+def end_bulk_value(_, sem_stack):
+    values = []
+    vars = []
+    while True:
+        var = sem_stack.pop()
+        if var == "#":
+            break
+        values.append(var)
+    while True:
+        var = sem_stack.pop()
+        if var == "#":
+            break
+        vars.append(var)
+    if len(vars) != len(values):
+        raise CodeGeneratorException(BULK_EQUAL_NUMBER)
+
+    for i in range(len(vars)):
+        sem_stack.append(vars[len(vars) - i - 1])
+        sem_stack.append(values[len(vars) - i - 1])
+        assign(_, sem_stack)
+        sem_stack.pop()

@@ -1,5 +1,17 @@
 from code_generator import funcs
 
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 sem_stack = []
 code = None
 global_code = []
@@ -51,6 +63,6 @@ def build_code():
     for line in func_code:
         code.append(line)
     if len(sem_stack) > 0:
-        print("WARNING!!!!! SemStack is not empty: ", len(sem_stack), sem_stack.pop())
+        print(bcolors.WARNING + "WARNING!!!!! SemStack is not empty: ", len(sem_stack), sem_stack.pop())
     else:
-        print("CodeGenerator is fine and stack is empty correctly.")
+        print(bcolors.BOLD + "CodeGenerator is fine and stack is empty correctly.")

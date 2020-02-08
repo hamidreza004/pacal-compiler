@@ -17,6 +17,7 @@ def parse():
     parse_stack = []
     token = get_token()
     while True:
+        print(state, token)
         data = grammar[(state, token['type'])].split(' ')
         if len(data) == 1:
             if data[0] == "ERROR":

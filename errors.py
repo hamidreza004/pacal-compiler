@@ -6,6 +6,7 @@ DOUBLE_DECLARE = "One variable declare twice in same scope."
 ARRAY_DIM_INTEGER = "Array dimension must be integer"
 NOT_ARRAY = "It's an array."
 NOT_DECLARED = "Variable not declared."
+BULK_EQUAL_NUMBER = "Variables and values must be same length"
 
 
 class ParserException(Exception):
