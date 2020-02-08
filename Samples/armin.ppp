@@ -1,7 +1,16 @@
+
+function print(a : integer; b : string) : integer
+begin
+    write(b);
+    b := "shir";
+    write(b);
+    write(a + 'a' = 2 * a);
+    return 0;
+end
+
+
 function main() : integer
 begin
-    index : integer := 10 ;
-
-    index := 5;
+    print(2, "salam");
     return 0 ;
-end 
+end
