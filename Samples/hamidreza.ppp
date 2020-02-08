@@ -1,13 +1,19 @@
+function str_len(s : string) : integer
+begin
+    a : integer := 0;
+    while true do
+    begin
+        if s[a] = '\00' then
+        begin
+            return a
+        end;
+    end;
+    return 100;
+end
+
 function main() : integer
 begin
-
-    a : integer := 0;
-    b : integer := 161;
-    while a < 5 do
-    begin
-        write(a);
-        write("\n");
-        a := a + 1;
-    end;
+    s : string := "Hello World!";
+    write(str_len(s));
     return 0 ;
 end 

@@ -121,7 +121,7 @@ def get_token():
         c = token
         token = input_char()
         return srz(c, None)
-
+    print(token)
     raise errors.ScannerException(errors.NO_VALID_TOKEN)
 
 

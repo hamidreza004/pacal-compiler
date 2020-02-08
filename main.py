@@ -64,6 +64,8 @@ if __name__ == '__main__':
     with open(args[1], 'r') as f:
         src = ''.join(f.readlines())
 
+    src = src
+
     helper.initiate(src)
     scanner_initiate()
 
