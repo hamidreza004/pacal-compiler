@@ -4,13 +4,13 @@ Document of language is [here](http://ce.sharif.edu/courses/98-99/1/ce414-1/reso
 
 ## Install
 
-Requirements is just python(>3) 
+Requirements are just python(>3) 
 
 ## Usage
 
 ./compile.sh path_to_code.pp
 
-Result will be store at code.ll
+The result will be store at code.ll
 
 You can run it using clang, for example : clang code.ll && ./a.out
 
