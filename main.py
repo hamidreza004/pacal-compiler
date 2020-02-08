@@ -78,6 +78,6 @@ if __name__ == '__main__':
     parse()
     build_code()
 
-    with open('code.ppp', 'w') as f:
+    with open('code.ll', 'w') as f:
         for line in code:
-            f.writelines(line)
+            f.write(line+'\n')
