@@ -1,10 +1,10 @@
 function main() : integer
 begin
 
-    a : integer := 2;
-    b : integer := 2;
-    if a = 2 then
-        begin
+    a : integer := 5;
+    b : integer := -2;
+    if -3 <> b * 2 + 1 then
+    begin
             write("salam");
         end
     else

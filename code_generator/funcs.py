@@ -584,14 +584,35 @@ def arithmetic_cast(type_a, type_b):
     return type
 
 
+def multiple_comparator_command(sem_stack, var_a, var_b, type, command):
+    global diff_count, level
+    load_var(var_a)
+    if var_a['type'] != type:
+        diff_count += 1
+        cast({'name': f'%.tmp{diff_count - 1}', 'type': var_a['type'], 'align': var_a['type']}, type)
+    aa = diff_count
+    diff_count += 1
+    load_var(var_b)
+    if var_b['type'] != type:
+        diff_count += 1
+        cast({'name': f'%.tmp{diff_count - 1}', 'type': var_b['type'], 'align': var_b['type']}, type)
+    bb = diff_count
+    diff_count += 1
+    add_code(f"%.tmp{diff_count} = {command} {type} %.tmp{aa}, %.tmp{bb}")
+    diff_count += 1
+    un_pointer({'name': f'%.tmp{diff_count - 1}', 'type': 'i1', 'align': variable_size[type], 'level': level})
+    sem_stack.append({'name': f'%.tmp{diff_count}', 'type': 'i1', 'align': variable_size[type], 'level': level})
+    diff_count += 1
+
+
 def equal(_, sem_stack):
     var_b = sem_stack.pop()
     var_a = sem_stack.pop()
     type = arithmetic_cast(var_a['type'], var_b['type'])
     if type == "float":
-        multiple_expr_command(sem_stack, var_a, var_b, type, 'fcmp oeq')
+        multiple_comparator_command(sem_stack, var_a, var_b, type, 'fcmp oeq')
     else:
-        multiple_expr_command(sem_stack, var_a, var_b, type, 'icmp eq')
+        multiple_comparator_command(sem_stack, var_a, var_b, type, 'icmp eq')
 
 
 def not_equal(_, sem_stack):
@@ -599,9 +620,9 @@ def not_equal(_, sem_stack):
     var_a = sem_stack.pop()
     type = arithmetic_cast(var_a['type'], var_b['type'])
     if type == "float":
-        multiple_expr_command(sem_stack, var_a, var_b, type, 'fcmp une')
+        multiple_comparator_command(sem_stack, var_a, var_b, type, 'fcmp une')
     else:
-        multiple_expr_command(sem_stack, var_a, var_b, type, 'icmp ne')
+        multiple_comparator_command(sem_stack, var_a, var_b, type, 'icmp ne')
 
 
 def greater(_, sem_stack):
@@ -609,9 +630,9 @@ def greater(_, sem_stack):
     var_a = sem_stack.pop()
     type = arithmetic_cast(var_a['type'], var_b['type'])
     if type == "float":
-        multiple_expr_command(sem_stack, var_a, var_b, type, 'fcmp ogt')
+        multiple_comparator_command(sem_stack, var_a, var_b, type, 'fcmp ogt')
     else:
-        multiple_expr_command(sem_stack, var_a, var_b, type, 'icmp sgt')
+        multiple_comparator_command(sem_stack, var_a, var_b, type, 'icmp sgt')
 
 
 def less(_, sem_stack):
@@ -619,9 +640,9 @@ def less(_, sem_stack):
     var_a = sem_stack.pop()
     type = arithmetic_cast(var_a['type'], var_b['type'])
     if type == "float":
-        multiple_expr_command(sem_stack, var_a, var_b, type, 'fcmp olt')
+        multiple_comparator_command(sem_stack, var_a, var_b, type, 'fcmp olt')
     else:
-        multiple_expr_command(sem_stack, var_a, var_b, type, 'icmp slt')
+        multiple_comparator_command(sem_stack, var_a, var_b, type, 'icmp slt')
 
 
 def greater_equal(_, sem_stack):
@@ -629,9 +650,9 @@ def greater_equal(_, sem_stack):
     var_a = sem_stack.pop()
     type = arithmetic_cast(var_a['type'], var_b['type'])
     if type == "float":
-        multiple_expr_command(sem_stack, var_a, var_b, type, 'fcmp oge')
+        multiple_comparator_command(sem_stack, var_a, var_b, type, 'fcmp oge')
     else:
-        multiple_expr_command(sem_stack, var_a, var_b, type, 'icmp sge')
+        multiple_comparator_command(sem_stack, var_a, var_b, type, 'icmp sge')
 
 
 def less_equal(_, sem_stack):
@@ -639,9 +660,9 @@ def less_equal(_, sem_stack):
     var_a = sem_stack.pop()
     type = arithmetic_cast(var_a['type'], var_b['type'])
     if type == "float":
-        multiple_expr_command(sem_stack, var_a, var_b, type, 'fcmp ole')
+        multiple_comparator_command(sem_stack, var_a, var_b, type, 'fcmp ole')
     else:
-        multiple_expr_command(sem_stack, var_a, var_b, type, 'icmp sle')
+        multiple_comparator_command(sem_stack, var_a, var_b, type, 'icmp sle')
 
 
 def add(_, sem_stack):
@@ -743,22 +764,23 @@ def check_condition_jump_if(_, sem_stack):
         cast(var, 'i1')
     else:
         load_var(var)
-    add_code(f"""br i1 %.tmp{diff_count}, label %label{diff_count + 1}, label %{diff_count + 2}""")
+    add_code(f"""br i1 %.tmp{diff_count}, label %lbl{diff_count + 1}, label %lbl{diff_count + 2}""")
     sem_stack.append(diff_count + 2)
-    add_code(f"""%label{diff_count + 1}:""")
+    add_code(f"""lbl{diff_count + 1}:""")
     diff_count += 3
 
 
 def endjump_else(_, sem_stack):
     global diff_count
     label = sem_stack.pop()
-    add_code(f"""%label{diff_count}:""")
+    add_code(f"""br label %lbl{diff_count}""")
     sem_stack.append(diff_count)
     diff_count += 1
-    add_code(f"""%label{label}:""")
+    add_code(f"""lbl{label}:""")
 
 
 def set_endif(_, sem_stack):
     global diff_count
     label = sem_stack.pop()
-    add_code(f"""%label{label}:""")
+    add_code(f"""br label %lbl{label}""")
+    add_code(f"""lbl{label}:""")
