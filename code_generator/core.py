@@ -49,3 +49,7 @@ def build_code():
         code.append(line)
     for line in func_code:
         code.append(line)
+    if len(sem_stack) > 0:
+        print("WARNING!!!!! SemStack is not empty: ", len(sem_stack), sem_stack.pop())
+    else:
+        print("CodeGenerator is fine and stack is empty correctly.")
