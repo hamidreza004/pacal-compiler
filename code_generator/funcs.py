@@ -1,4 +1,3 @@
-from decimal import Decimal
 from code_generator.helper import *
 from errors import *
 import struct
@@ -458,7 +457,7 @@ def return_value(_, sem_stack):
     sem_stack.append(func)
 
 
-def logical_or(token, sem_stack):
+def logical_or(_, sem_stack):
     global diff_count, level
     var_b = sem_stack.pop()
     var_a = sem_stack.pop()

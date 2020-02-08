@@ -80,4 +80,4 @@ if __name__ == '__main__':
 
     with open('code.ll', 'w') as f:
         for line in code:
-            f.write(line+'\n')
+            f.write(line + '\n')
