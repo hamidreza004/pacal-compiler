@@ -11,6 +11,6 @@ end
 
 function main() : integer
 begin
-    a : integer := chaap(2, "salam");
+    chaap(2, "salam");
     return 0 ;
 end
