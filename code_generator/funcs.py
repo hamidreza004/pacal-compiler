@@ -234,6 +234,13 @@ def var_const(token):
         return '@.const.' + token[0] + '.' + str(token[1])
 
 
+def float_to_hex(token):
+    if token != 0:
+        return hex(struct.unpack("Q", struct.pack("d", float(token)))[0])[:-8] + '0' * 8
+    else:
+        return '0.0'
+
+
 def const_push(token, sem_stack):
     var_name = var_const(token)
     var = {'name': var_name, 'type': variable_map[token[0]], 'align': variable_size[variable_map[token[0]]],
@@ -247,8 +254,7 @@ def const_push(token, sem_stack):
                     const_code.append(f"{var_name} = global {var['type']} {ord(str(token[1]))}, align {var['align']}")
             else:
                 const_code.append(
-                    f"""{var_name} = global {var['type']} {str(
-                        hex(struct.unpack("Q", struct.pack("d", float(token[1])))[0])[:-8] + '0' * 8)}, align {var[
+                    f"""{var_name} = global {var['type']} {str(float_to_hex(token[1]))}, align {var[
                         'align']}""")
         else:
             dic_sym = {
@@ -761,26 +767,49 @@ def check_condition_jump_if(_, sem_stack):
     global diff_count
     var = sem_stack.pop()
     if var['type'] != 'i1':
-        cast(var, 'i1')
+        load_var(var)
+        diff_count += 1
+        cast({"name": f"%.tmp{diff_count - 1}", "type": var['type'], 'align': var['align'], 'level': level}, 'i1')
     else:
         load_var(var)
-    add_code(f"""br i1 %.tmp{diff_count}, label %lbl{diff_count + 1}, label %lbl{diff_count + 2}""")
+    add_code(f"""br i1 %.tmp{diff_count}, label %.lbl{diff_count + 1}, label %.lbl{diff_count + 2}""")
     sem_stack.append(diff_count + 2)
-    add_code(f"""lbl{diff_count + 1}:""")
+    add_code(f""".lbl{diff_count + 1}:""")
     diff_count += 3
 
 
 def endjump_else(_, sem_stack):
     global diff_count
     label = sem_stack.pop()
-    add_code(f"""br label %lbl{diff_count}""")
+    add_code(f"""br label %.lbl{diff_count}""")
     sem_stack.append(diff_count)
     diff_count += 1
-    add_code(f"""lbl{label}:""")
+    add_code(f""".lbl{label}:""")
 
 
 def set_endif(_, sem_stack):
     global diff_count
     label = sem_stack.pop()
-    add_code(f"""br label %lbl{label}""")
-    add_code(f"""lbl{label}:""")
+    add_code(f"""br label %.lbl{label}""")
+    add_code(f""".lbl{label}:""")
+
+
+def start_while_push(_, sem_stack):
+    global diff_count
+    sem_stack.append(diff_count)
+    add_code(f"""br label %.lbl{diff_count}""")
+    add_code(f""".lbl{diff_count}:""")
+    diff_count += 1
+
+
+def check_condition_jump_while(_, sem_stack):
+    check_condition_jump_if(_, sem_stack)
+
+
+def jump_and_complete_jump(_, sem_stack):
+    tmp = sem_stack.pop()
+    label = sem_stack.pop()
+    add_code(f"""br label %.lbl{label}""")
+    sem_stack.append(tmp)
+    endjump_else(_, sem_stack)
+    set_endif(_, sem_stack)

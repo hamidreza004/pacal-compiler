@@ -1,15 +1,13 @@
 function main() : integer
 begin
 
-    a : integer := 5;
-    b : integer := -2;
-    if -3 <> b * 2 + 1 then
+    a : integer := 0;
+    b : integer := 161;
+    while a < 5 do
     begin
-            write("salam");
-        end
-    else
-        begin
-            write("khodafez");
-        end;
+        write(a);
+        write("\n");
+        a := a + 1;
+    end;
     return 0 ;
 end 
