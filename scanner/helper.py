@@ -19,7 +19,6 @@ def input_char():
     if ch == '\f' or ch == '\r' or ch == '\t' or ch == '\v' or ord(ch) == 32:
         return " "
     return ch
-<<<<<<< HEAD
 
 
 def rearrange(code):
@@ -43,5 +42,4 @@ def rearrange(code):
         global_vars.append(line)
 
     return '\n'.join(global_vars)
-=======
->>>>>>> 461751db34d3ea978c9a5f0d3996e9f46c6c86a9
+
