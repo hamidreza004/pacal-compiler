@@ -2,10 +2,11 @@
 procedure chaap(a : integer; b : string)
 begin
     write(b);
+    write("\n");
     b := "shir";
     write(b);
+    write("\n");
     write(a + 'a' = 2 * a);
-    return 0;
 end
 
 
