@@ -1,0 +1,13 @@
+a : integer;
+
+function main () : integer
+begin
+    b : integer := 23;
+    write(a);
+    begin
+        d : integer;
+    end
+    g : integer;
+end
+
+c : real;
