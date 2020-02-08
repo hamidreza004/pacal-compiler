@@ -1,6 +1,7 @@
 from decimal import Decimal
 from code_generator.helper import *
 from errors import *
+import struct
 
 sym_table = None
 global_code = []
@@ -144,8 +145,8 @@ def load_var(var):
         add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
     else:
         add_code(f"""%.tmp{diff_count} = alloca i8*, align 8""")
-        add_code(f"""store i8* getelementptr inbounds ([{len(var['value']) + 1} x i8], [{len(
-            var['value']) + 1} x i8]* {var['name']}, i32 0, i32 0), i8** %.tmp{diff_count}, align 8""")
+        add_code(f"""store i8* getelementptr inbounds ([{var['len'] + 1} x i8], [{var['len'] + 1} x i8]* {var[
+            'name']}, i32 0, i32 0), i8** %.tmp{diff_count}, align 8""")
         add_code(f"""%.tmp{diff_count + 1} = load i8*, i8** %.tmp{diff_count}, align 8""")
         diff_count += 1
 
@@ -178,8 +179,9 @@ def assign(_, sem_stack):
 
     if level > 0:
         if var_a['type'] == 'i8*' and 'const' in var_a:
-            add_code(f"""store i8* getelementptr inbounds ([{len(var_a['value']) + 1} x i8], [{len(
-                var_a['value']) + 1} x i8]* {var_a['name']}, i32 0, i32 0), i8** {var_b['name']}, align 8""")
+            var_b['len'] = var_a['len']
+            add_code(f"""store i8* getelementptr inbounds ([{var_a['len'] + 1} x i8], [{var_a['len'] + 1} x i8]* {var_a[
+                'name']}, i32 0, i32 0), i8** {var_b['name']}, align 8""")
         else:
             load_var(var_a)
 
@@ -198,10 +200,9 @@ def assign(_, sem_stack):
             global_code[line] = f"""{var_b['name']} = global {var_b['type']} {variable_cast_func[var_b['type']](
                 value)}, align {var_b['align']}"""
         else:
-
-            global_code[line] = f"""{var_b['name']} = global i8* getelementptr inbounds ([{len(
-                var_a['value'])} x i8], [{len(
-                var_a['value'])} x i8]* {var_a['name']}, i32 0, i32 0), align 8"""
+            var_b['len'] = var_a['len']
+            global_code[line] = f"""{var_b['name']} = global i8* getelementptr inbounds ([{var_a['len'] + 1} x i8], [{
+            var_a['len'] + 1} x i8]* {var_a['name']}, i32 0, i32 0), align 8"""
 
         diff_count += 1
         sem_stack.append(var_b)
@@ -223,9 +224,9 @@ def var_const(token):
         s = token[1]
         for ch in s:
             hsh = (hsh * 1812 + ord(ch)) % 182374277514
-        return '@.const.' + str(hsh)
+        return '@.const.' + token[0] + '.' + str(hsh)
     else:
-        return '@.const.' + str(token[1])
+        return '@.const.' + token[0] + '.' + str(token[1])
 
 
 def const_push(token, sem_stack):
@@ -235,13 +236,33 @@ def const_push(token, sem_stack):
     if var_name not in const_define:
         if token[0] != "string":
             if token[0] != "real":
-                const_code.append(f"{var_name} = global {var['type']} {token[1]}, align {var['align']}")
+                if token[0] != 'character':
+                    const_code.append(f"{var_name} = global {var['type']} {token[1]}, align {var['align']}")
+                else:
+                    const_code.append(f"{var_name} = global {var['type']} {ord(str(token[1]))}, align {var['align']}")
             else:
                 const_code.append(
-                    f"{var_name} = global {var['type']} {'%E' % Decimal(str(token[1]))}, align {var['align']}")
+                    f"""{var_name} = global {var['type']} {str(
+                        hex(struct.unpack("Q", struct.pack("d", float(token[1])))[0])[:-8] + '0' * 8)}, align {var[
+                        'align']}""")
         else:
+            dic_sym = {
+                '\\n': '\\0A',
+                '\\f': '\\0C',
+                '\\r': '\\0D',
+                '\\v': '\\0B',
+                '\\t': '\\09'
+            }
+            n = 0
+            var['len'] = len(token[1])
+            var['value'] = token[1]
+            for key in dic_sym:
+                n += token[1].count(key)
+                var['value'] = var['value'].replace(key, dic_sym[key])
+            var['len'] -= n
             const_code.append(
-                f"""{var_name} = private unnamed_addr constant [{len(token[1]) + 1} x i8] c"{token[1]}\\00", align 1""")
+                f"""{var_name} = private unnamed_addr constant [{var['len'] + 1} x i8] c"{var[
+                    'value']}\\00", align 1""")
 
         const_define[var_name] = None
     var['level'] = 0
@@ -253,10 +274,22 @@ def write(_, sem_stack):
     global diff_count
     var = sem_stack.pop()
     load_var(var)
-    add_code(
-        f"""call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.w{var['type'] if var[
-                                                                                                               'type'] != 'i8*' else "string"}, i32 0, i32 0), {
+    if var['type'] == 'i64':
+        add_code(f"""call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.w{var['type'] if var[
+                                                                                                                        'type'] != 'i8*' else "string"}, i32 0, i32 0), {
         var['type']} %.tmp{diff_count}) """)
+    else:
+        if var['type'] != 'float':
+            add_code(
+                f"""call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.w{var['type'] if var[
+                                                                                                                       'type'] != 'i8*' else "string"}, i32 0, i32 0), {
+                var['type']} %.tmp{diff_count}) """)
+        else:
+            add_code(f"%.tmp{diff_count + 1} = fpext float %.tmp{diff_count} to double")
+            diff_count += 1
+            add_code(
+                f"""call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.w{var['type'] if var[
+                                                                                                                       'type'] != 'i8*' else "string"}, i32 0, i32 0), double %.tmp{diff_count}) """)
     diff_count += 1
 
 
@@ -265,12 +298,17 @@ def read(_, sem_stack):
     var = sem_stack.pop()
     if var['type'] == 'i64':
         add_code(
-            f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.r{var['type'] if
-            var['type'] != 'i8*' else "string"}, i32 0, i32 0), {var['type']}* {var['name']})""")
-    else:
-        add_code(
             f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.r{var['type'] if
             var['type'] != 'i8*' else "string"}, i32 0, i32 0), {var['type']}* {var['name']})""")
+    else:
+        if var['type'] != 'i8*':
+            add_code(f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.r{var[
+                'type'] if var['type'] != 'i8*' else "string"}, i32 0, i32 0), {var['type']}* {var['name']})""")
+        else:
+            add_code(f"""%.tmp{diff_count} = load i8*, i8** {var['name']}, align 8""")
+            add_code(f"""call i32 (i8*, ...) @__isoc99_scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.r{var[
+                'type'] if var['type'] != 'i8*' else "string"}, i32 0, i32 0), i8* %.tmp{diff_count})""")
+            diff_count += 1
 
 
 def start_dec_func(_, sem_stack):
