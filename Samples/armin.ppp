@@ -1,5 +1,5 @@
 
-function print(a : integer; b : string) : integer
+function chaap(a : integer; b : string) : integer
 begin
     write(b);
     b := "shir";
@@ -11,6 +11,6 @@ end
 
 function main() : integer
 begin
-    print(2, "salam");
+    chaap(2, "salam");
     return 0 ;
 end
