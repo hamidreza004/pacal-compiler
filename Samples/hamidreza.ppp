@@ -3,6 +3,13 @@ begin
 
     a : integer := 2;
     b : integer := 2;
-    write(a+b);
+    if a = 2 then
+        begin
+            write("salam");
+        end
+    else
+        begin
+            write("khodafez");
+        end;
     return 0 ;
 end 

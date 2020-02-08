@@ -734,3 +734,31 @@ def end_bulk_value(_, sem_stack):
         sem_stack.append(values[len(vars) - i - 1])
         assign(_, sem_stack)
         sem_stack.pop()
+
+
+def check_condition_jump_if(_, sem_stack):
+    global diff_count
+    var = sem_stack.pop()
+    if var['type'] != 'i1':
+        cast(var, 'i1')
+    else:
+        load_var(var)
+    add_code(f"""br i1 %.tmp{diff_count}, label %label{diff_count + 1}, label %{diff_count + 2}""")
+    sem_stack.append(diff_count + 2)
+    add_code(f"""%label{diff_count + 1}:""")
+    diff_count += 3
+
+
+def endjump_else(_, sem_stack):
+    global diff_count
+    label = sem_stack.pop()
+    add_code(f"""%label{diff_count}:""")
+    sem_stack.append(diff_count)
+    diff_count += 1
+    add_code(f"""%label{label}:""")
+
+
+def set_endif(_, sem_stack):
+    global diff_count
+    label = sem_stack.pop()
+    add_code(f"""%label{label}:""")
