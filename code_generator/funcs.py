@@ -429,7 +429,7 @@ def end_access_func(_, sem_stack):
     func = sem_stack.pop()
     ind = 0
     for arg in inp_args:
-        def_arg = func['args'][ind]
+        def_arg = func['args'][len(inp_args) - ind - 1]
         if def_arg['type'] != arg['type']:
             add_code(f"%.tmp{diff_count} = load {arg['type']}, {arg['type']}* {arg['name']}, align {arg['align']}")
             new_var = {'name': f'%.tmp{diff_count}', 'type': arg['type'], 'align': arg['align']}
@@ -466,7 +466,7 @@ def end_access_proc(_, sem_stack):
     func = sem_stack.pop()
     ind = 0
     for arg in inp_args:
-        def_arg = func['args'][ind]
+        def_arg = func['args'][len(inp_args) - ind - 1]
         if def_arg['type'] != arg['type']:
             add_code(f"%.tmp{diff_count} = load {arg['type']}, {arg['type']}* {arg['name']}, align {arg['align']}")
             new_var = {'name': f'%.tmp{diff_count}', 'type': arg['type'], 'align': arg['align']}

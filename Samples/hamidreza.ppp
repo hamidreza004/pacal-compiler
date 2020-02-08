@@ -1,6 +1,16 @@
+
+function chaap(a : integer; b : string) : integer
+begin
+    write(b);
+    b := "shir";
+    write(b);
+    write(a + 'a' = 2 * a);
+    return 0;
+end
+
+
 function main() : integer
 begin
-    s : string := "Hello World!";
-    write(s[0]);
+    a : integer := chaap(2, "salam");
     return 0 ;
-end 
+end
