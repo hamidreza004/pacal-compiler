@@ -1,3 +1,4 @@
+from decimal import Decimal
 from code_generator.helper import *
 from errors import *
 
@@ -115,12 +116,10 @@ def end_access_array(_, sem_stack):
         index.append(ic)
     var = sem_stack.pop()
     i = 0
-    print(index, var['array'])
     while True:
         line = str(var['type'])
         for j in range(0, len(var['array']) - i):
             line = "[" + str(var['array'][len(var['array']) - j - 1]) + " x " + line + "]"
-        print(line, index)
         ic = index.pop()
         add_code(f"""%.tmp{diff_count} = load {ic['type']}, {ic['type']}* {ic['name']}, align {ic['align']}""")
         add_code(f"""%.tmp{diff_count + 1} = sext {ic['type']} %.tmp{diff_count} to i64""")
@@ -210,6 +209,11 @@ def assign(_, sem_stack):
     diff_count += 1
 
 
+def assign_and_pop(token, sem_stack):
+    assign(token, sem_stack)
+    pop(token, sem_stack)
+
+
 const_define = {}
 
 
@@ -230,7 +234,11 @@ def const_push(token, sem_stack):
            'value': token[1]}
     if var_name not in const_define:
         if token[0] != "string":
-            const_code.append(f"{var_name} = global {var['type']} {token[1]}, align {var['align']}")
+            if token[0] != "real":
+                const_code.append(f"{var_name} = global {var['type']} {token[1]}, align {var['align']}")
+            else:
+                const_code.append(
+                    f"{var_name} = global {var['type']} {'%E' % Decimal(str(token[1]))}, align {var['align']}")
         else:
             const_code.append(
                 f"""{var_name} = private unnamed_addr constant [{len(token[1]) + 1} x i8] c"{token[1]}\\00", align 1""")
@@ -284,8 +292,6 @@ def end_dec_func(token, sem_stack):
     global level
     func = sem_stack.pop()
     line = sem_stack.pop()
-    print(func)
-    print(token)
     code_line = f"define {variable_map[token]} {func['name']}("
     first = True
     for arg in func['args']:
@@ -296,12 +302,14 @@ def end_dec_func(token, sem_stack):
     code_line = code_line + ") {"
     func['type'] = variable_map[token]
     func_code[int(line)] = code_line
+    sem_stack.append(func)
     level -= 1
 
 
-def bracket_close(_, __):
+def bracket_close(_, sem_stack):
     global func_code
     func_code.append('}')
+    sem_stack.pop()
 
 
 def start_dec_proc(token, sem_stack):
@@ -322,6 +330,7 @@ def end_dec_proc(_, sem_stack):
         first = False
     code_line = code_line + ") {"
     func_code[int(line)] = code_line
+    sem_stack.append(func)
     level -= 1
 
 
@@ -369,7 +378,10 @@ def end_access_func(_, sem_stack):
     for arg in inp_args:
         def_arg = func['args'][ind]
         if def_arg['type'] != arg['type']:
-            cast(arg, def_arg['type'])
+            add_code(f"%.tmp{diff_count} = load {arg['type']}, {arg['type']}* {arg['name']}, align {arg['align']}")
+            new_var = {'name': f'%.tmp{diff_count}', 'type': arg['type'], 'align': arg['align']}
+            diff_count += 1
+            cast(new_var, def_arg['type'])
             code_line = "," + def_arg['type'] + " " + f"%.tmp{diff_count}"
             diff_count += 1
         else:
@@ -392,6 +404,17 @@ def end_access_func(_, sem_stack):
 def return_value(_, sem_stack):
     global diff_count
     var = sem_stack.pop()
-    add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
-    add_code(f"ret {var['type']} %.tmp{diff_count}")
-    diff_count += 1
+    func = sem_stack.pop()
+    print(func)
+    if var['type'] != func['type']:
+        add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
+        new_var = {'name': f'%.tmp{diff_count}', 'type': var['type'], 'align': var['align']}
+        diff_count += 1
+        cast(new_var, func['type'])
+        add_code(f"ret {func['type']} %.tmp{diff_count}")
+        diff_count += 1
+    else:
+        add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
+        add_code(f"ret {var['type']} %.tmp{diff_count}")
+        diff_count += 1
+    sem_stack.append(func)

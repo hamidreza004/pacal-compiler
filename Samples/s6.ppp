@@ -1,12 +1,14 @@
-function f(s : string; t : string) : string
+function f(s : real) : integer
 begin
-    return t;
+    return s;
 end
 
 function main () : integer
 begin
-   a : string := "hello world!";
-   b : string := "salam";
-   write(f(a,b));
+   a : array [100] of integer;
+   a[10] := 1323.5;
+   b : array [50] of integer;
+   b[5] := a[10];
+   write(f(b[5]));
    return 0;
 end
