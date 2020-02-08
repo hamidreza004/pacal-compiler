@@ -5,7 +5,7 @@ pointer = None
 def initiate(source):
     global src, pointer
     pointer = 0
-    src = rearrange(source)
+    src = source
 
 
 def input_char():
@@ -32,7 +32,8 @@ def rearrange(code):
         if line.split(' ')[0] == "end":
             level -= 1
             continue
-        if level == 0 and line.split(' ')[0] != "function" and line.split(' ')[0] != "procedure" and line.split(' ')[0] != '':
+        if level == 0 and line.split(' ')[0] != "function" and line.split(' ')[0] != "procedure" and line.split(' ')[
+            0] != '':
             global_vars.append(line)
             lines[i] = '$' + line
 
@@ -42,4 +43,3 @@ def rearrange(code):
         global_vars.append(line)
 
     return '\n'.join(global_vars)
-
