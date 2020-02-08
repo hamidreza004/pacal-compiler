@@ -215,3 +215,4 @@ pip-selfcheck.json
 .idea/pascall-compiler.iml
 .idea/vcs.xml
 a.out
+code.ll
