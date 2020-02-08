@@ -584,6 +584,66 @@ def arithmetic_cast(type_a, type_b):
     return type
 
 
+def equal(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    type = arithmetic_cast(var_a['type'], var_b['type'])
+    if type == "float":
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'fcmp oeq')
+    else:
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'icmp eq')
+
+
+def not_equal(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    type = arithmetic_cast(var_a['type'], var_b['type'])
+    if type == "float":
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'fcmp une')
+    else:
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'icmp ne')
+
+
+def greater(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    type = arithmetic_cast(var_a['type'], var_b['type'])
+    if type == "float":
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'fcmp ogt')
+    else:
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'icmp sgt')
+
+
+def less(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    type = arithmetic_cast(var_a['type'], var_b['type'])
+    if type == "float":
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'fcmp olt')
+    else:
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'icmp slt')
+
+
+def greater_equal(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    type = arithmetic_cast(var_a['type'], var_b['type'])
+    if type == "float":
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'fcmp oge')
+    else:
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'icmp sge')
+
+
+def less_equal(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    type = arithmetic_cast(var_a['type'], var_b['type'])
+    if type == "float":
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'fcmp ole')
+    else:
+        multiple_expr_command(sem_stack, var_a, var_b, type, 'icmp sle')
+
+
 def add(_, sem_stack):
     var_b = sem_stack.pop()
     var_a = sem_stack.pop()

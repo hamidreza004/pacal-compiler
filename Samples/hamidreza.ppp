@@ -1,9 +1,8 @@
 function main() : integer
 begin
 
-    a : array [100, 50] of real;
-    a[2,0] := 2;
-    a[10,1] := 100 * -a[2,0] + 10.2 - 10;
-    write(a[10, 1]);
+    a : integer := 2;
+    b : integer := 2;
+    write(a+b);
     return 0 ;
 end 
