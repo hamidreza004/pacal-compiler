@@ -277,7 +277,8 @@ def const_push(token, sem_stack):
                 f"""{var_name} = private unnamed_addr constant [{var['len'] + 1} x i8] c"{var[
                     'value']}\\00", align 1""")
 
-        const_define[var_name] = None
+        const_define[var_name] = var
+    var = const_define[var_name]
     var['level'] = 0
     var['const'] = True
     sem_stack.append(var)
