@@ -42,6 +42,8 @@ def declare_var_and_push(token, sem_stack):
     var['type'] = variable_map[token]
     var['align'] = variable_size[var['type']]
     var['level'] = level
+    if var['type'] == 'i8*':
+        var['array'] = []
     diff_count += 1
 
     if level > 0:
@@ -433,7 +435,7 @@ def end_access_func(_, sem_stack):
             new_var = {'name': f'%.tmp{diff_count}', 'type': arg['type'], 'align': arg['align']}
             diff_count += 1
             cast(new_var, def_arg['type'])
-            code_line = "," + def_arg['type'] + " " + f"%.tmp{diff_count}"
+            code_line = "," + def_arg['type'] + " " + f"%.tmp{diff_count}" + code_line
             diff_count += 1
         else:
             load_var(arg)
@@ -470,7 +472,7 @@ def end_access_proc(_, sem_stack):
             new_var = {'name': f'%.tmp{diff_count}', 'type': arg['type'], 'align': arg['align']}
             diff_count += 1
             cast(new_var, def_arg['type'])
-            code_line = "," + def_arg['type'] + " " + f"%.tmp{diff_count}"
+            code_line = "," + def_arg['type'] + " " + f"%.tmp{diff_count}" + code_line
             diff_count += 1
         else:
             load_var(arg)
