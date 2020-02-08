@@ -464,6 +464,14 @@ def end_access_proc(_, sem_stack):
             break
         inp_args.append(arg)
     func = sem_stack.pop()
+    if 'type' in func:
+        sem_stack.append(func)
+        sem_stack.append("#")
+        for arg in reversed(inp_args):
+            sem_stack.append(arg)
+        end_access_func(_, sem_stack)
+        sem_stack.pop()
+        return
     ind = 0
     for arg in inp_args:
         def_arg = func['args'][len(inp_args) - ind - 1]
