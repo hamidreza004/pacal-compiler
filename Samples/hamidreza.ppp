@@ -1,6 +1,8 @@
 function main() : integer
 begin
-    index : integer := 10 ;
-    index := 5;
+    a : integer := 5;
+    b : integer := 10;
+    ans : integer := a | b;
+    write(ans);
     return 0 ;
 end 

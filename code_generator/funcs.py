@@ -165,7 +165,13 @@ def cast(var, type):
     global diff_count
     if var['type'] == type:
         return
-    add_code(f"%.tmp{diff_count} = {type_cast(var['type'], type)} {var['type']} {var['name']} to {type}")
+    if type != 'i1':
+        add_code(f"%.tmp{diff_count} = {type_cast(var['type'], type)} {var['type']} {var['name']} to {type}")
+    else:
+        if var['type'] != 'float':
+            add_code(f"""%.tmp{diff_count} = icmp ne {var['type']} {var['name']}, {variable_default[var['type']]}""")
+        else:
+            add_code(f"""%.tmp{diff_count} = fcmp une {var['type']} {var['name']}, {variable_default[var['type']]}""")
 
 
 def assign(_, sem_stack):
@@ -490,22 +496,51 @@ def return_value(_, sem_stack):
     sem_stack.append(func)
 
 
-def logical_or(_, sem_stack):
+###### EXPRESION :
+def multiple_expr_command(sem_stack, var_a, var_b, type, command):
     global diff_count, level
-    var_b = sem_stack.pop()
-    var_a = sem_stack.pop()
     load_var(var_a)
-    diff_count += 1
-    cast({'name': f'%.tmp{diff_count - 1}', 'type': var_a['type'], 'align': var_a['type']}, 'i1')
+    if var_a['type'] != type:
+        diff_count += 1
+        cast({'name': f'%.tmp{diff_count - 1}', 'type': var_a['type'], 'align': var_a['type']}, type)
     aa = diff_count
     diff_count += 1
     load_var(var_b)
-    diff_count += 1
-    cast({'name': f'%.tmp{diff_count - 1}', 'type': var_b['type'], 'align': var_b['type']}, 'i1')
+    if var_b['type'] != type:
+        diff_count += 1
+        cast({'name': f'%.tmp{diff_count - 1}', 'type': var_b['type'], 'align': var_b['type']}, type)
     bb = diff_count
     diff_count += 1
-    add_code(f"%.tmp{diff_count} = or i1 %.tmp{aa}, %.tmp{bb}")
+    add_code(f"%.tmp{diff_count} = {command} {type} %.tmp{aa}, %.tmp{bb}")
     diff_count += 1
-    un_pointer({'name': f'%.tmp{diff_count - 1}', 'type': 'i1', 'align': variable_size['i1'], 'level': level})
-    sem_stack.append({'name': f'%.tmp{diff_count}', 'type': 'i1', 'align': variable_size['i1'], 'level': level})
+    un_pointer({'name': f'%.tmp{diff_count - 1}', 'type': type, 'align': variable_size[type], 'level': level})
+    sem_stack.append({'name': f'%.tmp{diff_count}', 'type': type, 'align': variable_size[type], 'level': level})
     diff_count += 1
+
+
+def logical_or(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    multiple_expr_command(sem_stack, var_a, var_b, 'i1', 'or')
+
+
+def logical_and(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    multiple_expr_command(sem_stack, var_a, var_b, 'i1', 'and')
+
+
+def bitwise_or(_, sem_stack):
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    if var_a['type'] == 'i64' or var_b['type'] == 'i64':
+        type = 'i64'
+    elif var_a['type'] == 'i32' or var_b['type'] == 'i32':
+        type = 'i32'
+    elif var_a['type'] == 'i8' or var_b['type'] == 'i8':
+        type = 'i8'
+    elif var_a['type'] == 'i1' or var_b['type'] == 'i1':
+        type = 'i1'
+    else:
+        type = 'i32'
+    multiple_expr_command(sem_stack, var_a, var_b, type, 'or')

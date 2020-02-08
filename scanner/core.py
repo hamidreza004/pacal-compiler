@@ -112,7 +112,7 @@ def get_token():
 
     if token == '|':
         token = input_char()
-        return 'bor'
+        return srz('bor', None)
 
     if token == ',':
         token = input_char()
