@@ -4,7 +4,7 @@ Document of language is [here](http://ce.sharif.edu/courses/98-99/1/ce414-1/reso
 
 ## Install
 
-Requirements are just python(>3) 
+Requirement is just python(>3) 
 
 ## Usage
 
