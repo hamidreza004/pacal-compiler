@@ -456,3 +456,24 @@ def return_value(_, sem_stack):
         add_code(f"ret {var['type']} %.tmp{diff_count}")
         diff_count += 1
     sem_stack.append(func)
+
+
+def logical_or(token, sem_stack):
+    global diff_count, level
+    var_b = sem_stack.pop()
+    var_a = sem_stack.pop()
+    load_var(var_a)
+    diff_count += 1
+    cast({'name': f'%.tmp{diff_count - 1}', 'type': var_a['type'], 'align': var_a['type']}, 'i1')
+    aa = diff_count
+    diff_count += 1
+    load_var(var_b)
+    diff_count += 1
+    cast({'name': f'%.tmp{diff_count - 1}', 'type': var_b['type'], 'align': var_b['type']}, 'i1')
+    bb = diff_count
+    diff_count += 1
+    add_code(f"%.tmp{diff_count} = or i1 %.tmp{aa}, %.tmp{bb}")
+    diff_count += 1
+    un_pointer({'name': f'%.tmp{diff_count - 1}', 'type': 'i1', 'align': variable_size['i1'], 'level': level})
+    sem_stack.append({'name': f'%.tmp{diff_count}', 'type': 'i1', 'align': variable_size['i1'], 'level': level})
+    diff_count += 1

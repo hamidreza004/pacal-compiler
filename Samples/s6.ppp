@@ -1,5 +1,8 @@
 function main () : integer
 begin
-   write("hello\n\vb");
+   a : integer := 3;
+   b : integer := 0;
+   c : boolean := a;
+   write(c);
    return 0;
 end
