@@ -1,30 +1,4 @@
-function print(s : string; b : string): string
-begin
-    write(s);
-    return b;
-end
-
-function f(s : string): integer
-begin
-    i : integer := 0;
-    char : integer;
-    flag : boolean := true;
-    while flag do
-    begin
-        char := s[i];
-        if char = 0 then
-        begin
-            flag := false;
-        end
-        else
-        begin
-            i := i + 1;
-        end;
-    end;
-    return i;
-end
-
 function main(): integer
 begin
-    write();
+    write(strlen("Armi"));
 end

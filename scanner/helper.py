@@ -5,7 +5,27 @@ pointer = None
 def initiate(source):
     global src, pointer
     pointer = 0
-    src = source
+    src = """
+    function strlen(s : string): integer
+begin
+    i : integer := 0;
+    char : integer;
+    flag : boolean := true;
+    while flag do
+    begin
+        char := s[i];
+        if char = 0 then
+        begin
+            flag := false;
+        end
+        else
+        begin
+            i := i + 1;
+        end;
+    end;
+    return i;
+end
+    """ + source
 
 
 def input_char():
