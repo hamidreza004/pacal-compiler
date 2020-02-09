@@ -26,6 +26,7 @@ begin
     return i;
 end
     """ + source
+    src = rearrange(src)
 
 
 def input_char():

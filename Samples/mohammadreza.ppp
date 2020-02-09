@@ -1,0 +1,13 @@
+function main () : integer
+begin
+    b : real := 10;
+    c : real := a / b;
+    write(c);
+    s : string := "salam";
+    write('\n');
+    write(s[4]);
+    write('\n');
+    write(a & b);
+end
+
+a : integer := 55;
