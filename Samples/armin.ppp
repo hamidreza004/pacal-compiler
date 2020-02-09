@@ -9,9 +9,15 @@ begin
     write(a + 'a' = 2 * a);
 end
 
+function chaapgar(): string
+begin
+    return "to az tolooye sobhi too shere eltemasam.";
+end
+
 
 function main() : integer
 begin
-    chaap(2, "salam");
+    chaap('a', "salam");
+    chaapgar();
     return 0 ;
 end
