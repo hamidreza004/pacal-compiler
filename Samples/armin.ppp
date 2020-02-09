@@ -1,11 +1,20 @@
-function print(s : string; b : integer): integer
+function print(s : string; b : string): string
 begin
     write(s);
     return b;
 end
 
+function f(s : string): integer
+begin
+    i : integer := 0;
+    while s[i] <> 'f' do
+    begin
+        i := i + 1;
+    end;
+    return i;
+end
 
 function main(): integer
 begin
-    write(print("your name is:  ", 2));
+    write(f("Arminf"));
 end
