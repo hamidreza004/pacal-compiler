@@ -118,6 +118,7 @@ def end_access_array(_, sem_stack):
         index.append(ic)
     var = sem_stack.pop()
     i = 0
+    print(index, var)
     while True:
         line = str(var['type'])
         for j in range(0, len(var['array']) - i):
@@ -126,8 +127,12 @@ def end_access_array(_, sem_stack):
         add_code(f"""%.tmp{diff_count} = load {ic['type']}, {ic['type']}* {ic['name']}, align {ic['align']}""")
         add_code(f"""%.tmp{diff_count + 1} = sext {ic['type']} %.tmp{diff_count} to i64""")
         if i == 0:
-            add_code(f"""%.tmp{diff_count + 2} = getelementptr inbounds {line}, {line}* {var[
-                'name']}, i64 0, i64 %.tmp{diff_count + 1}""")
+            if 'len' not in var:
+                add_code(f"""%.tmp{diff_count + 2} = getelementptr inbounds {line}, {line}* {var[
+                    'name']}, i64 0, i64 %.tmp{diff_count + 1}""")
+            else:
+                add_code(f"""%.tmp{diff_count + 3} = load i8*, i8** {var['name']}, align 8""")
+                add_code(f"""%.tmp{diff_count + 2} = getelementptr inbounds i8, i8* %.tmp{diff_count + 3}, i64 %.tmp{diff_count + 1}""")
         else:
             add_code(
                 f"""%.tmp{diff_count + 2} = getelementptr inbounds {line}, {line}* %.tmp{diff_count - 1}, i64 0, i64 %.tmp{diff_count + 1}""")
@@ -137,8 +142,9 @@ def end_access_array(_, sem_stack):
             break
 
     sem_stack.append(
-        {"name": f"%.tmp{diff_count - 1}", "type": var['type'], "level": level, "align": variable_size[var['type']]})
+        {"name": f"%.tmp{diff_count - 1}", "type": var['type'] if var['type'] != 'i8*' else 'i8', "level": level, "align": variable_size[var['type']]})
 
+    diff_count += 1
 
 def load_var(var):
     global diff_count
@@ -187,6 +193,7 @@ def assign(_, sem_stack):
     if level > 0:
         if var_a['type'] == 'i8*' and 'const' in var_a:
             var_b['len'] = var_a['len']
+            var_b['array'] = var_a['array']
             add_code(f"""store i8* getelementptr inbounds ([{var_a['len'] + 1} x i8], [{var_a['len'] + 1} x i8]* {var_a[
                 'name']}, i32 0, i32 0), i8** {var_b['name']}, align 8""")
         else:
@@ -208,6 +215,7 @@ def assign(_, sem_stack):
                 value)}, align {var_b['align']}"""
         else:
             var_b['len'] = var_a['len']
+            var_b['array'] = var_a['array']
             global_code[line] = f"""{var_b['name']} = global i8* getelementptr inbounds ([{var_a['len'] + 1} x i8], [{
             var_a['len'] + 1} x i8]* {var_a['name']}, i32 0, i32 0), align 8"""
 
@@ -273,6 +281,7 @@ def const_push(token, sem_stack):
                 n += token[1].count(key)
                 var['value'] = var['value'].replace(key, dic_sym[key])
             var['len'] -= n
+            var['array'] = [var['len'], ]
             const_code.append(
                 f"""{var_name} = private unnamed_addr constant [{var['len'] + 1} x i8] c"{var[
                     'value']}\\00", align 1""")
