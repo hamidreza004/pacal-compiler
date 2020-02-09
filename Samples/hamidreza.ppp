@@ -1,6 +1,14 @@
+a : string := "sss";
+
+function f(s : string; t : integer) : string
+begin
+    return "salam";
+    a : string := "salammmm";
+end
+
 function main() : integer
 begin
     s : string := "kir";
-    write(s[2]);
-    return 0 ;
+    write(f(s,10));
+    return 0;
 end
