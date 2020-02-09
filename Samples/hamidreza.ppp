@@ -1,7 +1,4 @@
 function main() : integer
 begin
-    s : string := "salam" ;
-    c : array [6] of character;
-    c := s;
-    write(s);
+
 end
