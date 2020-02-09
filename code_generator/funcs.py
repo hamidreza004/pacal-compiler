@@ -43,7 +43,8 @@ def declare_var_and_push(token, sem_stack):
     var['align'] = variable_size[var['type']]
     var['level'] = level
     if var['type'] == 'i8*':
-        var['array'] = []
+        var['array'] = [10000,]
+        var['len'] = 10000
     diff_count += 1
 
     if level > 0:
@@ -258,6 +259,13 @@ def const_push(token, sem_stack):
     var_name = var_const(token)
     var = {'name': var_name, 'type': variable_map[token[0]], 'align': variable_size[variable_map[token[0]]],
            'value': token[1]}
+    dic_sym = {
+        '\\n': '\\0A',
+        '\\f': '\\0C',
+        '\\r': '\\0D',
+        '\\v': '\\0B',
+        '\\t': '\\09'
+    }
     if var_name not in const_define:
         if token[0] != "string":
             if token[0] != "real":
@@ -270,13 +278,6 @@ def const_push(token, sem_stack):
                     f"""{var_name} = global {var['type']} {str(float_to_hex(token[1]))}, align {var[
                         'align']}""")
         else:
-            dic_sym = {
-                '\\n': '\\0A',
-                '\\f': '\\0C',
-                '\\r': '\\0D',
-                '\\v': '\\0B',
-                '\\t': '\\09'
-            }
             n = 0
             var['len'] = len(token[1])
             var['value'] = token[1]

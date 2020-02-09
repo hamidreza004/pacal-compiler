@@ -182,6 +182,7 @@ def get_token_char():
     check_eof()
     ans = token
     token = input_char()
+    print(ans, token)
     check_eof()
     if token != "'":
         raise errors.ScannerException(errors.SCANNER_EXCEPTION)
