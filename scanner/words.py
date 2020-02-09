@@ -18,7 +18,6 @@ key_token_words = [
     "then",
     "write",
     "read",
-    "strlen"
 ]
 
 single_signs = [
