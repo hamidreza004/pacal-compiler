@@ -43,7 +43,7 @@ def declare_var_and_push(token, sem_stack):
     var['align'] = variable_size[var['type']]
     var['level'] = level
     if var['type'] == 'i8*':
-        var['array'] = [10000,]
+        var['array'] = [10000, ]
         var['len'] = 10000
     diff_count += 1
 
@@ -379,7 +379,8 @@ def bracket_close(_, sem_stack):
     else:
         if func['type'] == 'i8*':
             const_push(('string', ""), sem_stack)
-            func_code.append(f"""ret i8* getelementptr inbounds ([1 x i8], [1 x i8]* {sem_stack.pop()['name']}, i32 0, i32 0) """)
+            func_code.append(
+                f"""ret i8* getelementptr inbounds ([1 x i8], [1 x i8]* {sem_stack.pop()['name']}, i32 0, i32 0) """)
         else:
             func_code.append(f"""ret {func['type']} {variable_default[func['type']]}""")
     func_code.append('}')
