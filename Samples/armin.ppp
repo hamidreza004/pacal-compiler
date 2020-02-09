@@ -7,14 +7,24 @@ end
 function f(s : string): integer
 begin
     i : integer := 0;
-    while s[i] <> 'f' do
+    char : integer;
+    flag : boolean := true;
+    while flag do
     begin
-        i := i + 1;
+        char := s[i];
+        if char = 0 then
+        begin
+            flag := false;
+        end
+        else
+        begin
+            i := i + 1;
+        end;
     end;
     return i;
 end
 
 function main(): integer
 begin
-    write(f("Arminf"));
+    write();
 end
