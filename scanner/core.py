@@ -184,8 +184,11 @@ def get_token_char():
     token = input_char()
     print(ans, token)
     check_eof()
-    if token != "'":
+    if token != "'" and not (ans == '\\' and token == 'n'):
         raise errors.ScannerException(errors.SCANNER_EXCEPTION)
+    if ans == '\\' and token == 'n':
+        ans = '\n'
+        token = input_char()
     token = input_char()
     return srz('constant', ('character', ans))
 

@@ -1,5 +1,5 @@
 function main() : integer
 begin
-    s : string := "salam";
-    write(s[3]);
+    s : character := '\n' ;
+    write(s);
 end
