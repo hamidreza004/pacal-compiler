@@ -1,4 +1,15 @@
+function f(a : integer) : integer
+begin
+    if a < 2 then
+    begin
+        return 1;
+    end;
+    return f(a - 1) + f(a - 2);
+end
+
 function main() : integer
 begin
-
+    a : integer ;
+    read(a);
+    write(f(a));
 end

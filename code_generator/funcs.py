@@ -338,6 +338,9 @@ def read(_, sem_stack):
             diff_count += 1
 
 
+glob_func = None
+
+
 def start_dec_func(_, sem_stack):
     global func_code
     global level
@@ -355,6 +358,7 @@ def start_dec_func(_, sem_stack):
 def end_dec_func(token, sem_stack):
     global func_code
     global level
+    global glob_func
     func = sem_stack.pop()
     line = sem_stack.pop()
     code_line = f"define {variable_map[token]} {func['name']}("
@@ -368,6 +372,7 @@ def end_dec_func(token, sem_stack):
     func['type'] = variable_map[token]
     func_code[int(line)] = code_line
     sem_stack.append(func)
+    glob_func = func
     level -= 1
 
 
@@ -393,6 +398,7 @@ def start_dec_proc(token, sem_stack):
 def end_dec_proc(_, sem_stack):
     global func_code
     global level
+    global glob_func
     func = sem_stack.pop()
     line = sem_stack.pop()
     code_line = f"define void {func['name']}("
@@ -405,6 +411,7 @@ def end_dec_proc(_, sem_stack):
     code_line = code_line + ") {"
     func_code[int(line)] = code_line
     sem_stack.append(func)
+    glob_func = func
     level -= 1
 
 
@@ -515,10 +522,13 @@ def end_access_proc(_, sem_stack):
 
 
 def return_value(_, sem_stack):
-    global diff_count
+    global diff_count, glob_func
     var = sem_stack.pop()
     func = sem_stack.pop()
+    sem_stack.append(func)
+    func = glob_func
     print(func)
+    print(var, func)
     if var['type'] != func['type']:
         add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
         new_var = {'name': f'%.tmp{diff_count}', 'type': var['type'], 'align': var['align']}
@@ -541,7 +551,6 @@ def return_value(_, sem_stack):
             add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
             add_code(f"ret {var['type']} %.tmp{diff_count}")
             diff_count += 1
-    sem_stack.append(func)
 
 
 ###### EXPRESION :
