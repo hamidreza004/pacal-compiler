@@ -132,7 +132,8 @@ def end_access_array(_, sem_stack):
                     'name']}, i64 0, i64 %.tmp{diff_count + 1}""")
             else:
                 add_code(f"""%.tmp{diff_count + 3} = load i8*, i8** {var['name']}, align 8""")
-                add_code(f"""%.tmp{diff_count + 2} = getelementptr inbounds i8, i8* %.tmp{diff_count + 3}, i64 %.tmp{diff_count + 1}""")
+                add_code(
+                    f"""%.tmp{diff_count + 2} = getelementptr inbounds i8, i8* %.tmp{diff_count + 3}, i64 %.tmp{diff_count + 1}""")
         else:
             add_code(
                 f"""%.tmp{diff_count + 2} = getelementptr inbounds {line}, {line}* %.tmp{diff_count - 1}, i64 0, i64 %.tmp{diff_count + 1}""")
@@ -142,9 +143,11 @@ def end_access_array(_, sem_stack):
             break
 
     sem_stack.append(
-        {"name": f"%.tmp{diff_count - 1}", "type": var['type'] if var['type'] != 'i8*' else 'i8', "level": level, "align": variable_size[var['type']]})
+        {"name": f"%.tmp{diff_count - 1}", "type": var['type'] if var['type'] != 'i8*' else 'i8', "level": level,
+         "align": variable_size[var['type']]})
 
     diff_count += 1
+
 
 def load_var(var):
     global diff_count
@@ -372,6 +375,12 @@ def bracket_close(_, sem_stack):
     func = sem_stack.pop()
     if 'type' not in func:
         func_code.append('ret void')
+    else:
+        if func['type'] == 'i8*':
+            const_push(('string', ""), sem_stack)
+            func_code.append(f"""ret i8* getelementptr inbounds ([1 x i8], [1 x i8]* {sem_stack.pop()['name']}, i32 0, i32 0) """)
+        else:
+            func_code.append(f"""ret {func['type']} {variable_default[func['type']]}""")
     func_code.append('}')
 
 
@@ -516,9 +525,20 @@ def return_value(_, sem_stack):
         add_code(f"ret {func['type']} %.tmp{diff_count}")
         diff_count += 1
     else:
-        add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
-        add_code(f"ret {var['type']} %.tmp{diff_count}")
-        diff_count += 1
+        if var['type'] == 'i8*' and 'const' in var:
+            tmp = diff_count
+            add_code(f"""%.tmp{tmp} = alloca i8*, align 8""")
+            sem_stack.append({'name': f"%.tmp{tmp}", 'level': level, 'type': 'i8*', 'align': 8})
+            sem_stack.append(var)
+            assign(_, sem_stack)
+            sem_stack.pop()
+            add_code(f"%.tmp{diff_count} = load i8*, i8** %.tmp{tmp}, align 8")
+            add_code(f"ret {var['type']} %.tmp{diff_count}")
+            diff_count += 1
+        else:
+            add_code(f"%.tmp{diff_count} = load {var['type']}, {var['type']}* {var['name']}, align {var['align']}")
+            add_code(f"ret {var['type']} %.tmp{diff_count}")
+            diff_count += 1
     sem_stack.append(func)
 
 
