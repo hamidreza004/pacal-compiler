@@ -1,23 +1,11 @@
-
-procedure chaap(a : integer; b : string)
-begin
-    write(b);
-    write("\n");
-    b := "shir";
-    write(b);
-    write("\n");
-    write(a + 'a' = 2 * a);
-end
-
 function chaapgar(): string
 begin
-    return "to az tolooye sobhi too shere eltemasam.";
+    return "sadfsdfa";
 end
-
 
 function main() : integer
 begin
-    chaap('a', "salam");
-    chaapgar();
+    a : string := chaapgar();
+    write(a);
     return 0 ;
 end
