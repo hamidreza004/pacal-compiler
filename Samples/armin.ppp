@@ -1,11 +1,11 @@
-function chaapgar(): string
+function print(s : string; b : integer): integer
 begin
-    return "sadfsdfa";
+    write(s);
+    return b;
 end
 
-function main() : integer
+
+function main(): integer
 begin
-    a : string := chaapgar();
-    write(a);
-    return 0 ;
+    write(print("your name is:  ", 2));
 end
